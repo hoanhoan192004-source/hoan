@@ -41,7 +41,11 @@ export function applyFilters() {
 export async function loadTasks() {
   try {
     const dbTasks = await fetchAllTasks();
-    allTasks = dbTasks.length > 0 ? dbTasks : SAMPLE_TASKS;
+    if (dbTasks === null) {
+      allTasks = SAMPLE_TASKS;
+    } else {
+      allTasks = dbTasks;
+    }
     applyFilters();
   } catch (err) {
     console.error('Load tasks failed, using sample data:', err);

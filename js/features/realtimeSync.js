@@ -4,9 +4,9 @@ import { showToast } from '../ui/toast.js';
 
 let realtimeSub = null;
 
-export function startRealtime() {
+export async function startRealtime() {
   if (realtimeSub) return;
-  realtimeSub = subscribeToTaskChanges(handleRealtimeUpdate);
+  realtimeSub = await subscribeToTaskChanges(handleRealtimeUpdate);
 }
 
 export function stopRealtime() {
