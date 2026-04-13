@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>Đăng nhập – Kanban Task Manager</title>
+  <meta name="description" content="Đăng nhập hoặc đăng ký tài khoản Kanban Task Manager"/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script src="../css/tailwind-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.js"></script>
+  <link rel="stylesheet" href="../css/main.css"/>
+  <script>
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  </script>
+</head>
+
+<body class="bg-slate-50 dark:bg-[#030014] text-slate-900 dark:text-white font-sans min-h-screen flex items-center justify-center p-4 relative overflow-hidden selection:bg-brand-500/30 transition-colors duration-500">
+
+<!-- Theme Toggle Button -->
+<button id="theme-toggle" class="fixed top-6 right-6 z-50 p-3 rounded-2xl bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-xl border border-slate-200/60 dark:border-white/10 shadow-lg text-slate-600 dark:text-neutral-400 hover:text-brand-500 dark:hover:text-white transition-all hover:scale-105 active:scale-95 group">
+  <span class="material-symbols-outlined dark:hidden block transform group-hover:rotate-12 transition-transform">light_mode</span>
+  <span class="material-symbols-outlined hidden dark:block transform group-hover:-rotate-12 transition-transform">dark_mode</span>
+</button>
+
+<!-- ════════════════════════════════════════════════
+     120FPS GPU ACCELERATED AURORA BACKGROUND
+     ════════════════════════════════════════════════ -->
+<style>
+/* 120fps optimized animations */
+@keyframes blob-1 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(30px, -50px, 0) scale(1.1); }
+  66% { transform: translate3d(-20px, 20px, 0) scale(0.9); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes blob-2 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(-30px, 50px, 0) scale(1.1); }
+  66% { transform: translate3d(20px, -20px, 0) scale(0.9); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes card-enter {
+  from { opacity: 0; transform: translate3d(0, 40px, 0) scale(0.95); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes sweep {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes shine {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  50%, 100% { transform: translateX(200%) skewX(-15deg); }
+}
+@keyframes border-spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.aurora-blob-1 {
+  animation: blob-1 8s infinite ease-in-out;
+  will-change: transform;
+}
+.aurora-blob-2 {
+  animation: blob-2 10s infinite ease-in-out;
+  animation-delay: -2s;
+  will-change: transform;
+}
+.aurora-blob-3 {
+  animation: blob-1 12s infinite ease-in-out reverse;
+  animation-delay: -4s;
+  will-change: transform;
+}
+.animate-card-enter {
+  animation: card-enter 1s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+  will-change: transform, opacity;
+}
+.animate-gradient-btn {
+  background-size: 200% auto;
+  animation: sweep 4s linear infinite;
+}
+
+/* Fix browser autocomplete breaking dark inputs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #09090b inset !important;
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: white;
+}
+
+/* Glowing border effect on hover card */
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(180deg, rgba(139,92,246,0.15) 0%, rgba(255,255,255,0) 100%);
+  border-radius: inherit;
+  z-index: -1;
+  pointer-events: none;
+}
+.dark .glass-card::before {
+  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+}
+
+/* Apple-style Animated Border */
+.card-border-wrap {
+  position: relative;
+  border-radius: 1.5rem;
+  isolation: isolate;
+}
+.card-border-wrap::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg at 50% 50%, rgba(139,92,246,0) 0%, rgba(139,92,246,0) 50%, rgba(139,92,246,0.8) 80%, rgba(6,182,212,0.8) 100%);
+  animation: border-spin 4s linear infinite;
+  z-index: -2;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  padding: 2px;
+}
+.card-border-wrap:hover::after {
+  opacity: 1;
+}
+
+/* Shine effect on button */
+.btn-shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shine 3s infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Physics based input transition */
+input, label {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+</style>
+
+<!-- Mouse Follow Glow -->
+<div id="cursor-glow" class="pointer-events-none fixed top-0 left-0 w-[400px] h-[400px] bg-purple-500/20 dark:bg-brand-500/15 rounded-full blur-[100px] mix-blend-screen opacity-0 transition-opacity duration-300 z-0 transform -translate-x-1/2 -translate-y-1/2 will-change-transform hidden sm:block"></div>
+
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-slate-50 dark:bg-[#030014] transition-colors duration-500">
+  <!-- Grid overlay -->
+  <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik00MCAwaE0wIDB2NDBoNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgwLDAsMCwwLjA0KSIvPgo8L3N2Zz4=')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik00MCAwaE0wIDB2NDBoNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPgo8L3N2Zz4=')] bg-repeat -mt-px opacity-60 dark:opacity-30"></div>
+  <!-- Aurora Gradients (Adjusted for Light/Dark) -->
+  <div class="absolute top-[20%] left-[20%] w-[500px] h-[500px] bg-violet-400/40 dark:bg-violet-600/30 rounded-full blur-[100px] aurora-blob-1 mix-blend-multiply dark:mix-blend-screen transition-colors duration-1000"></div>
+  <div class="absolute bottom-[10%] right-[10%] w-[600px] h-[600px] bg-cyan-400/30 dark:bg-cyan-600/20 rounded-full blur-[120px] aurora-blob-2 mix-blend-multiply dark:mix-blend-screen transition-colors duration-1000"></div>
+  <div class="absolute top-[40%] right-[30%] w-[400px] h-[400px] bg-fuchsia-400/30 dark:bg-fuchsia-600/20 rounded-full blur-[80px] aurora-blob-3 mix-blend-multiply dark:mix-blend-screen transition-colors duration-1000"></div>
+  <!-- Vignette -->
+  <div class="absolute inset-0 bg-radial from-transparent to-slate-50/80 dark:to-[#030014]/90 pointer-events-none transition-colors duration-700"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     ULTRA PREMIUM AUTH CARD
+     ════════════════════════════════════════════════ -->
+<div class="relative z-10 w-full max-w-[420px] animate-card-enter opacity-0">
+  
+  <div class="card-border-wrap transition-transform duration-500 hover:-translate-y-2">
+    <div class="glass-card relative bg-white/60 dark:bg-[#0a0a0c]/80 backdrop-blur-3xl rounded-[1.5rem] p-8 sm:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.05)] dark:shadow-[0_0_80px_rgba(139,92,246,0.1)] border border-slate-200/50 dark:border-white/5 transition-colors duration-500">
+      
+      <!-- Header -->
+    <div class="text-center mb-10">
+      <div class="relative mx-auto w-16 h-16 rounded-2xl mb-6 flex items-center justify-center p-[2px] bg-linear-to-b from-slate-200 to-transparent dark:from-white/20 dark:to-white/0 shadow-[0_16px_40px_rgba(139,92,246,0.2)] dark:shadow-[0_0_40px_rgba(139,92,246,0.3)]">
+        <div class="w-full h-full bg-slate-50 dark:bg-[#0a0a0a] rounded-[14px] flex items-center justify-center relative overflow-hidden">
+          <div class="absolute inset-0 bg-linear-to-br from-violet-500/10 to-cyan-400/10 dark:from-violet-500/20 dark:to-cyan-400/20"></div>
+          <span class="material-symbols-outlined text-slate-800 dark:text-white text-[32px] relative z-10" style="font-variation-settings:'FILL' 1;">view_kanban</span>
+        </div>
+      </div>
+      <h1 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white mb-2 transition-colors">Kanban<span class="text-brand-500">.</span></h1>
+      <p class="text-sm text-slate-500 dark:text-neutral-400 font-medium transition-colors">Khởi động luồng công việc tuyệt đỉnh.</p>
+    </div>
+
+    <!-- ═══ LOGIN FORM ═══ -->
+    <form id="form-login" class="space-y-5">
+      <!-- Input Group -->
+      <div class="relative group">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 peer-focus:text-brand-600 dark:peer-focus:text-brand-400 transition-colors z-10">mail</span>
+        <input type="email" id="login-email" required
+          class="peer w-full bg-slate-100/50 dark:bg-white/3 hover:bg-slate-200/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-xl pl-11 pr-4 pt-6 pb-2 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-white/5 focus:outline-none focus:ring-2 focus:ring-purple-500/30 dark:focus:ring-purple-500/50 focus:border-purple-500 transition-all duration-300 backdrop-blur-sm"
+          placeholder=" ">
+        <label class="absolute left-11 top-4 text-sm text-slate-500 dark:text-neutral-500 pointer-events-none transition-all duration-300 peer-focus:-translate-y-2 peer-focus:text-[10px] peer-focus:text-purple-600 dark:peer-focus:text-purple-400 peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-[:not(:placeholder-shown)]:-translate-y-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Địa chỉ Email</label>
+      </div>
+
+      <!-- Input Group -->
+      <div class="relative group">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 peer-focus:text-brand-600 dark:peer-focus:text-brand-400 transition-colors z-10">lock</span>
+        <input type="password" id="login-password" required minlength="6"
+          class="peer w-full bg-slate-100/50 dark:bg-white/3 hover:bg-slate-200/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-xl pl-11 pr-12 pt-6 pb-2 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-white/5 focus:outline-none focus:ring-2 focus:ring-purple-500/30 dark:focus:ring-purple-500/50 focus:border-purple-500 transition-all duration-300 backdrop-blur-sm"
+          placeholder=" ">
+        <label class="absolute left-11 top-4 text-sm text-slate-500 dark:text-neutral-500 pointer-events-none transition-all duration-300 peer-focus:-translate-y-2 peer-focus:text-[10px] peer-focus:text-purple-600 dark:peer-focus:text-purple-400 peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-[:not(:placeholder-shown)]:-translate-y-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Mật khẩu</label>
+        <button type="button" class="btn-toggle-password absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors z-10 hidden peer-[:not(:placeholder-shown)]:block">
+          <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+        </button>
+      </div>
+
+      <p id="login-error" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-500/10 rounded-xl px-4 py-3 border border-red-200 dark:border-red-500/20 shadow-inner"></p>
+
+      <button type="submit" class="w-full relative group overflow-hidden bg-gradient-to-r from-purple-600 via-brand-500 to-blue-600 text-white font-bold rounded-xl py-3.5 text-sm transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-purple-500/30 dark:hover:shadow-[0_0_40px_rgba(147,51,234,0.6)] active:scale-95 mt-2 animate-gradient-btn btn-shine">
+        <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out"></div>
+        <span class="relative z-10 flex justify-center items-center gap-2">
+          Đăng Nhập <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">rocket_launch</span>
+        </span>
+      </button>
+
+      <div class="text-center mt-6">
+        <p class="text-[13px] text-slate-500 dark:text-neutral-400 transition-colors">
+          Người dùng mới? 
+          <a href="#" id="go-to-register" class="text-slate-800 dark:text-white hover:text-purple-600 dark:hover:text-blue-400 font-semibold hover:underline transition-all">Tạo tài khoản</a>
+        </p>
+      </div>
+    </form>
+
+    <!-- ═══ REGISTER FORM ═══ -->
+    <form id="form-register" class="space-y-5 hidden">
+      <div class="relative group">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 peer-focus:text-brand-600 dark:peer-focus:text-brand-400 transition-colors z-10">mail</span>
+        <input type="email" id="register-email" required
+          class="peer w-full bg-slate-100/50 dark:bg-white/3 hover:bg-slate-200/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-xl pl-11 pr-4 pt-6 pb-2 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm"
+          placeholder=" ">
+        <label class="absolute left-11 top-4 text-sm text-slate-500 dark:text-neutral-500 pointer-events-none transition-all duration-300 peer-focus:-translate-y-2 peer-focus:text-[10px] peer-focus:text-blue-600 dark:peer-focus:text-blue-400 peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-[:not(:placeholder-shown)]:-translate-y-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Địa chỉ Email</label>
+      </div>
+
+      <div class="relative group">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 peer-focus:text-brand-600 dark:peer-focus:text-brand-400 transition-colors z-10">lock</span>
+        <input type="password" id="register-password" required minlength="6"
+          class="peer w-full bg-slate-100/50 dark:bg-white/3 hover:bg-slate-200/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-xl pl-11 pr-12 pt-6 pb-2 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm"
+          placeholder=" ">
+        <label class="absolute left-11 top-4 text-sm text-slate-500 dark:text-neutral-500 pointer-events-none transition-all duration-300 peer-focus:-translate-y-2 peer-focus:text-[10px] peer-focus:text-blue-600 dark:peer-focus:text-blue-400 peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-[:not(:placeholder-shown)]:-translate-y-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Mật khẩu mới</label>
+        <button type="button" class="btn-toggle-password absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors z-10 hidden peer-[:not(:placeholder-shown)]:block">
+          <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+        </button>
+      </div>
+      
+      <div class="relative group">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 peer-focus:text-brand-600 dark:peer-focus:text-brand-400 transition-colors z-10">lock</span>
+        <input type="password" id="register-password-confirm" required minlength="6"
+          class="peer w-full bg-slate-100/50 dark:bg-white/3 hover:bg-slate-200/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-xl pl-11 pr-12 pt-6 pb-2 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm"
+          placeholder=" ">
+        <label class="absolute left-11 top-4 text-sm text-slate-500 dark:text-neutral-500 pointer-events-none transition-all duration-300 peer-focus:-translate-y-2 peer-focus:text-[10px] peer-focus:text-blue-600 dark:peer-focus:text-blue-400 peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-[:not(:placeholder-shown)]:-translate-y-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Xác nhận mật khẩu</label>
+        <button type="button" class="btn-toggle-password absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors z-10 hidden peer-[:not(:placeholder-shown)]:block">
+          <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+        </button>
+      </div>
+
+      <p id="register-error" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-500/10 rounded-xl px-4 py-3 border border-red-200 dark:border-red-500/20 shadow-inner"></p>
+      <p id="register-success" class="hidden text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 rounded-xl px-4 py-3 border border-emerald-200 dark:border-emerald-500/20 shadow-inner"></p>
+
+      <button type="submit" class="w-full relative group overflow-hidden bg-gradient-to-r from-blue-600 via-brand-500 to-purple-600 text-white font-bold rounded-xl py-3.5 text-sm transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-blue-500/30 dark:hover:shadow-[0_0_40px_rgba(37,99,235,0.6)] active:scale-95 mt-2 animate-gradient-btn btn-shine">
+        <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out"></div>
+        <span class="relative z-10 flex justify-center items-center gap-2">
+          Đăng ký ngay <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">person_add</span>
+        </span>
+      </button>
+
+      <div class="text-center mt-6">
+        <p class="text-[13px] text-slate-500 dark:text-neutral-400 transition-colors">
+          Đã có tài khoản? 
+          <a href="#" id="go-to-login" class="text-slate-800 dark:text-white hover:text-blue-600 dark:hover:text-purple-400 font-semibold hover:underline transition-all">Đăng nhập</a>
+        </p>
+      </div>
+    </form>
+
+    <!-- Divider -->
+    <div class="relative flex items-center py-6">
+      <div class="grow border-t border-slate-200 dark:border-white/5 transition-colors"></div>
+      <span class="shrink-0 mx-4 text-[10px] text-slate-400 dark:text-neutral-600 font-black uppercase tracking-[0.2em] transition-colors">Hoặc</span>
+      <div class="grow border-t border-slate-200 dark:border-white/5 transition-colors"></div>
+    </div>
+
+    <!-- GitHub Login -->
+    <button id="btn-overlay-github" class="w-full bg-slate-100/50 hover:bg-slate-200/50 dark:bg-white/3 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-800 dark:text-white font-semibold rounded-xl py-3 text-sm transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-md dark:shadow-[0_0_20px_rgba(255,255,255,0.05)] dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3 active:scale-95 group">
+      <svg class="w-4 h-4 fill-current group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57"/></svg>
+      Tiếp tục với GitHub
+    </button>
+  </div>
+  </div>
+</div>
+
+<!-- Auth Script -->
+<script type="module">
+  import { initSupabase } from '../js/services/supabase.js';
+  import { signInWithGitHub, signInWithEmail, signUpWithEmail, onAuthStateChange } from '../js/user/auth.js';
+
+  initSupabase();
+
+  onAuthStateChange((_event, session) => {
+    if (session) {
+      document.querySelector('.glass-card').style.transform = 'scale(0.9)';
+      document.querySelector('.glass-card').style.opacity = '0';
+      document.querySelector('.glass-card').style.transition = 'all 0.5s ease-in';
+      setTimeout(() => { window.location.href = '../dashboard/index.html'; }, 400);
+    }
+  });
+
+  const formLogin = document.getElementById('form-login');
+  const formRegister = document.getElementById('form-register');
+  const btnGoToRegister = document.getElementById('go-to-register');
+  const btnGoToLogin = document.getElementById('go-to-login');
+  const helperText = document.querySelector('p.text-sm.text-slate-500.font-medium, p.text-sm.text-neutral-400.font-medium');
+
+  // Mouse Cursor Glow Tracking
+  const cursorGlow = document.getElementById('cursor-glow');
+  document.addEventListener('mousemove', (e) => {
+    cursorGlow.style.opacity = '1';
+    cursorGlow.style.left = e.clientX + 'px';
+    cursorGlow.style.top = e.clientY + 'px';
+  });
+  document.addEventListener('mouseleave', () => cursorGlow.style.opacity = '0');
+
+  // Theme Toggle Logic
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  themeToggleBtn.addEventListener('click', () => {
+    const html = document.documentElement;
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      localStorage.theme = 'light';
+    } else {
+      html.classList.add('dark');
+      localStorage.theme = 'dark';
+    }
+  });
+
+  // Smooth form transition
+  function switchForm(hideForm, showForm, title, subTitle) {
+    hideForm.style.opacity = '0';
+    hideForm.style.transform = 'translateY(10px) scale(0.98)';
+    setTimeout(() => {
+      hideForm.classList.add('hidden');
+      hideForm.style.transform = '';
+      
+      showForm.classList.remove('hidden');
+      showForm.style.opacity = '0';
+      showForm.style.transform = 'translateY(10px) scale(0.98)';
+      
+      helperText.textContent = subTitle;
+      
+      requestAnimationFrame(() => {
+        showForm.style.transition = 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        showForm.style.opacity = '1';
+        showForm.style.transform = 'translateY(0) scale(1)';
+      });
+    }, 200);
+  }
+
+  // Toggle Password Visibility Logic
+  document.querySelectorAll('.btn-toggle-password').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      // Prevent label tracking focus
+      e.preventDefault(); 
+      const input = btn.previousElementSibling;
+      const icon = btn.querySelector('.material-symbols-outlined');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = 'visibility';
+      } else {
+        input.type = 'password';
+        icon.textContent = 'visibility_off';
+      }
+    });
+  });
+
+  btnGoToRegister?.addEventListener('click', (e) => {
+    e.preventDefault();
+    formLogin.style.transition = 'all 0.2s ease-out';
+    switchForm(formLogin, formRegister, "Đăng ký", "Gia nhập gia đình Kanban.");
+  });
+
+  btnGoToLogin?.addEventListener('click', (e) => {
+    e.preventDefault();
+    formRegister.style.transition = 'all 0.2s ease-out';
+    switchForm(formRegister, formLogin, "Kanban", "Khởi động luồng công việc tuyệt đỉnh.");
+  });
+
+  formLogin?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">sync</span> Đang tải...';
+    btn.disabled = true;
+
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-password').value;
+    const errEl = document.getElementById('login-error');
+    errEl.classList.add('hidden');
+    try {
+      await signInWithEmail(email, pass);
+    } catch (err) {
+      errEl.textContent = err.message || 'Sai email hoặc mật khẩu.';
+      errEl.classList.remove('hidden');
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  });
+
+  formRegister?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">sync</span> Đang tải...';
+    btn.disabled = true;
+
+    const email = document.getElementById('register-email').value;
+    const pass = document.getElementById('register-password').value;
+    const pass2 = document.getElementById('register-password-confirm').value;
+    const errEl = document.getElementById('register-error');
+    const successEl = document.getElementById('register-success');
+    errEl.classList.add('hidden');
+    successEl.classList.add('hidden');
+
+    if (pass !== pass2) { 
+      errEl.textContent = 'Mật khẩu nhập lại không khớp.'; 
+      errEl.classList.remove('hidden'); 
+      btn.innerHTML = originalText; btn.disabled = false; return; 
+    }
+    if (pass.length < 6) { 
+      errEl.textContent = 'Mật khẩu phải có ít nhất 6 ký tự.'; 
+      errEl.classList.remove('hidden'); 
+      btn.innerHTML = originalText; btn.disabled = false; return; 
+    }
+
+    try {
+      await signUpWithEmail(email, pass);
+      successEl.textContent = 'Tạo tài khoản thành công! Xác nhận email để tiếp tục.';
+      successEl.classList.remove('hidden');
+      formRegister.reset();
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    } catch (err) {
+      errEl.textContent = err.message || 'Đăng ký thất bại.';
+      errEl.classList.remove('hidden');
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('btn-overlay-github')?.addEventListener('click', () => {
+    document.getElementById('btn-overlay-github').innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">sync</span> Đang kết nối...';
+    signInWithGitHub();
+  });
+</script>
+
+</body>
+</html>
