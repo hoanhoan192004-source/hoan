@@ -10,7 +10,7 @@ export async function signInWithGitHub() {
   // Build redirect URL to auth page (handles session → dashboard redirect)
   const origin = window.location.origin;
   const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
-  const redirectTo = `${origin}${basePath}/../auth/user.html`;
+  const redirectTo = `${origin}${basePath}/user.html`;
 
   const { data, error } = await getSupabase().auth.signInWithOAuth({
     provider: 'github',

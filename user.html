@@ -12,9 +12,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
   <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-  <script src="../css/tailwind-config.js"></script>
+  <script src="./css/tailwind-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.js"></script>
-  <link rel="stylesheet" href="../css/main.css"/>
+  <link rel="stylesheet" href="./css/main.css"/>
   <script>
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
       document.documentElement.classList.add('dark');
@@ -303,8 +303,8 @@ input, label {
 
 <!-- Auth Script -->
 <script type="module">
-  import { initSupabase } from '../js/services/supabase.js';
-  import { signInWithGitHub, signInWithEmail, signUpWithEmail, onAuthStateChange } from '../js/user/auth.js';
+  import { initSupabase } from './js/services/supabase.js';
+  import { signInWithGitHub, signInWithEmail, signUpWithEmail, onAuthStateChange } from './js/user/auth.js';
 
   initSupabase();
 
@@ -313,7 +313,7 @@ input, label {
       document.querySelector('.glass-card').style.transform = 'scale(0.9)';
       document.querySelector('.glass-card').style.opacity = '0';
       document.querySelector('.glass-card').style.transition = 'all 0.5s ease-in';
-      setTimeout(() => { window.location.href = '../dashboard/index.html'; }, 400);
+      setTimeout(() => { window.location.href = './index.html'; }, 400);
     }
   });
 
