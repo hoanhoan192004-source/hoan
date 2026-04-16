@@ -6,7 +6,7 @@ import { initSupabase } from './services/supabase.js';
 import { initAuthUI } from './user/ui.js';
 import { displayAllTasks } from './components/tasks.js';
 import { renderTaskListView } from './components/taskListView.js';
-import { renderArchiveView } from './components/archiveView.js';
+import { renderChartView } from './components/chartView.js';
 import { initModalUI, closeTaskModal, openEditModal } from './ui/modal.js';
 import { initPopoverUI, closeAllPopovers } from './ui/popover.js';
 import { initDragAndDrop } from './features/dragDrop.js';
@@ -22,8 +22,6 @@ import {
   handleMoveTask, 
   handleDeleteTask,
   handleArchiveTask,
-  handleRestoreTask,
-  handleClearAllArchived,
   applyFilters,
   STATUS_NAMES 
 } from './features/taskManager.js';
@@ -74,8 +72,8 @@ function refreshCurrentView() {
   const tab = getCurrentTab();
   if (tab === 'tasks') {
     renderTaskListView(allTasks);
-  } else if (tab === 'archive') {
-    renderArchiveView(allTasks);
+  } else if (tab === 'chart') {
+    renderChartView(allTasks);
   }
 }
 
@@ -129,12 +127,6 @@ function setupActionListeners() {
     } else {
       await handleMoveTask(task, STATUS.TODO);
     }
-    refreshCurrentView();
-  });
-
-  // Clear all archived event
-  document.addEventListener('archive:clear-all', async () => {
-    await handleClearAllArchived();
     refreshCurrentView();
   });
 }

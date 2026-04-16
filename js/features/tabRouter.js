@@ -6,7 +6,7 @@
 const TABS = {
   board:   { hash: '#board',   index: 0 },
   tasks:   { hash: '#tasks',   index: 1 },
-  archive: { hash: '#archive', index: 2 },
+  chart:   { hash: '#chart',   index: 2 },
 };
 
 let currentTab = 'board';

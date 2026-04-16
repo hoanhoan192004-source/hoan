@@ -208,8 +208,8 @@
       <a href="#tasks" data-tab="tasks" class="nav-pill text-xs font-medium px-5 py-2 rounded-xl transition-all duration-300">
         <span class="material-symbols-outlined text-[14px] mr-1" style="vertical-align: -2px;">checklist</span>Công việc
       </a>
-      <a href="#archive" data-tab="archive" class="nav-pill text-xs font-medium px-5 py-2 rounded-xl transition-all duration-300">
-        <span class="material-symbols-outlined text-[14px] mr-1" style="vertical-align: -2px;">inventory_2</span>Lưu trữ
+      <a href="#chart" data-tab="chart" class="nav-pill text-xs font-medium px-5 py-2 rounded-xl transition-all duration-300">
+        <span class="material-symbols-outlined text-[14px] mr-1" style="vertical-align: -2px;">bar_chart</span>Biểu đồ
       </a>
     </nav>
 
@@ -423,21 +423,21 @@
     <div id="task-list-view" class="kanban-column-wrapper p-4 sm:p-6"></div>
   </div><!-- /tab-view: tasks -->
 
-  <!-- ═══════ TAB: LƯU TRỮ (Archive) ═══════ -->
-  <div class="tab-view hidden" data-view="archive">
+  <!-- ═══════ TAB: BIỂU ĐỒ (Chart) ═══════ -->
+  <div class="tab-view hidden" data-view="chart">
     <div class="mb-6">
       <div class="inline-flex items-center gap-2 mb-3">
-        <div class="h-px w-8 bg-gradient-to-r from-violet-500 to-transparent"></div>
-        <p class="text-[10px] font-black text-violet-500 dark:text-violet-400 uppercase tracking-[0.25em]">Archive</p>
+        <div class="h-px w-8 bg-gradient-to-r from-cyan-500 to-transparent"></div>
+        <p class="text-[10px] font-black text-cyan-500 dark:text-cyan-400 uppercase tracking-[0.25em]">Analytics</p>
       </div>
       <h2 class="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
-        <span class="bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent">Kho</span>
-        <span class="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-400 bg-clip-text text-transparent"> lưu trữ</span>
+        <span class="bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent">Thống</span>
+        <span class="bg-gradient-to-r from-cyan-600 via-blue-500 to-violet-400 bg-clip-text text-transparent"> kê tổng quan</span>
       </h2>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md">Nhiệm vụ đã hoàn thành và được lưu trữ</p>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md">Phân tích và theo dõi tiến độ dự án</p>
     </div>
-    <div id="archive-view" class="kanban-column-wrapper p-4 sm:p-6"></div>
-  </div><!-- /tab-view: archive -->
+    <div id="chart-view"></div>
+  </div><!-- /tab-view: chart -->
 
 </main>
 
@@ -451,9 +451,9 @@
     <span class="material-symbols-outlined text-[20px]">checklist</span>
     <span class="text-[9px] font-bold">Việc</span>
   </div>
-  <div class="mobile-nav-item flex flex-col items-center gap-0.5 text-slate-400 rounded-2xl px-5 py-2 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer" data-tab="archive">
-    <span class="material-symbols-outlined text-[20px]">archive</span>
-    <span class="text-[9px] font-bold">Trữ</span>
+  <div class="mobile-nav-item flex flex-col items-center gap-0.5 text-slate-400 rounded-2xl px-5 py-2 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer" data-tab="chart">
+    <span class="material-symbols-outlined text-[20px]">bar_chart</span>
+    <span class="text-[9px] font-bold">Đồ thị</span>
   </div>
 </nav>
 
