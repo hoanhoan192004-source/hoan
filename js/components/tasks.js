@@ -101,6 +101,24 @@ export function createTaskCard(task) {
             <span class="material-symbols-outlined text-[14px] text-slate-400">more_vert</span>
           </button>
           <div class="task-popover absolute right-0 top-full mt-1.5 w-44 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl hidden z-50 border border-slate-100/80 dark:border-slate-700/50 overflow-hidden py-1.5">
+            ${!isDoing && !isDone ? `
+            <button class="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-xs font-semibold transition-all flex items-center gap-2.5 task-action" data-action="move-doing" data-task-id="${task.id}">
+              <span class="w-7 h-7 rounded-lg bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[14px] text-amber-500">autorenew</span>
+              </span>
+              Đang làm
+            </button>
+            <div class="border-t border-slate-100 dark:border-slate-700/50 my-1 mx-3"></div>
+            ` : ''}
+            ${!isDone ? `
+            <button class="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-xs font-semibold transition-all flex items-center gap-2.5 task-action" data-action="move-done" data-task-id="${task.id}">
+              <span class="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center">
+                <span class="material-symbols-outlined text-[14px] text-emerald-500">task_alt</span>
+              </span>
+              Hoàn thành
+            </button>
+            <div class="border-t border-slate-100 dark:border-slate-700/50 my-1 mx-3"></div>
+            ` : ''}
             <button class="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-xs font-semibold transition-all flex items-center gap-2.5 task-action" data-action="edit" data-task-id="${task.id}">
               <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center">
                 <span class="material-symbols-outlined text-[14px] text-brand-500">edit</span>

@@ -1,547 +1,467 @@
 <!DOCTYPE html>
-<html class="light" lang="vi">
+<html lang="vi">
 <head>
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Kanban – Quản lý nhiệm vụ</title>
-  <meta name="description" content="Ứng dụng quản lý nhiệm vụ Kanban Board chuyên nghiệp"/>
+  <title>Đăng nhập – Kanban Task Manager</title>
+  <meta name="description" content="Đăng nhập hoặc đăng ký tài khoản Kanban Task Manager"/>
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
-  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
   <script src="./css/tailwind-config.js"></script>
-
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.js"></script>
-
-  <!-- Styles -->
   <link rel="stylesheet" href="./css/main.css"/>
-
-  <style>
-    /* ════════════════════════════════════════════════
-       ULTRA PREMIUM SAAS DASHBOARD OVERRIDES
-       ════════════════════════════════════════════════ */
-    @keyframes border-spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
+  <script>
+    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
     }
-    @keyframes shine {
-      0% { transform: translateX(-100%) skewX(-15deg); }
-      50%, 100% { transform: translateX(200%) skewX(-15deg); }
-    }
-    @keyframes blob-1 {
-      0% { transform: translate3d(0, 0, 0) scale(1); }
-      33% { transform: translate3d(30px, -50px, 0) scale(1.1); }
-      66% { transform: translate3d(-20px, 20px, 0) scale(0.9); }
-      100% { transform: translate3d(0, 0, 0) scale(1); }
-    }
-    @keyframes blob-2 {
-      0% { transform: translate3d(0, 0, 0) scale(1); }
-      33% { transform: translate3d(-30px, 50px, 0) scale(1.1); }
-      66% { transform: translate3d(20px, -20px, 0) scale(0.9); }
-      100% { transform: translate3d(0, 0, 0) scale(1); }
-    }
-    
-    .aurora-blob-1 { animation: blob-1 12s infinite ease-in-out; will-change: transform; }
-    .aurora-blob-2 { animation: blob-2 16s infinite ease-in-out; animation-delay: -3s; will-change: transform; }
-    
-    /* Glassmorphism Navigation */
-    .header-glass {
-      background: rgba(255, 255, 255, 0.4) !important;
-      backdrop-filter: blur(40px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(40px) saturate(180%) !important;
-      border-bottom: 1px solid rgba(255,255,255,0.4);
-    }
-    .dark .header-glass {
-      background: rgba(10, 14, 26, 0.5) !important;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
-
-    /* Kanban Columns Premium Layout */
-    .kanban-column-wrapper {
-      position: relative;
-      background: rgba(255, 255, 255, 0.6) !important;
-      backdrop-filter: blur(20px) !important;
-      -webkit-backdrop-filter: blur(20px);
-      border-radius: 1.5rem !important;
-      border: 1px solid rgba(255,255,255,0.8) !important;
-      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    .dark .kanban-column-wrapper {
-      background: rgba(15, 23, 42, 0.5) !important;
-      border: 1px solid rgba(255,255,255,0.05) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 4px 20px rgba(0,0,0,0.3);
-    }
-    .kanban-column-wrapper:hover {
-      transform: translateY(-4px);
-    }
-    .dark .kanban-column-wrapper:hover {
-      box-shadow: 0 20px 40px -10px rgba(139,92,246,0.15), inset 0 1px 0 rgba(255,255,255,0.1);
-      border-color: rgba(255,255,255,0.15) !important;
-    }
-
-    /* Premium Task Cards (Applies to dynamically generated cards) */
-    .task-card {
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-      border: 1px solid rgba(255,255,255,0.8) !important;
-      border-radius: 1rem !important;
-      position: relative;
-      overflow: hidden;
-      background: rgba(255,255,255,0.8) !important;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.02) !important;
-    }
-    .dark .task-card {
-      background: rgba(30, 41, 59, 0.5) !important;
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.05) !important;
-    }
-    .task-card:hover {
-      transform: scale(1.02) translateY(-2px) !important;
-      box-shadow: 0 16px 32px -8px rgba(139,92,246,0.2) !important;
-      z-index: 10;
-      border-color: rgba(139,92,246,0.5) !important;
-    }
-    .task-card::before {
-      content: ""; position: absolute; inset: 0; background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent); opacity: 0; transition: opacity 0.3s; pointer-events: none;
-    }
-    .dark .task-card::before {
-      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.05), transparent);
-    }
-    .task-card:hover::before { opacity: 1; }
-
-    /* Stats Card Premium */
-    .stat-card-inner {
-      background: rgba(255,255,255,0.7) !important;
-      backdrop-filter: blur(20px);
-      border: 1px solid rgba(255,255,255,0.8) !important;
-      border-radius: 1.5rem !important;
-      transition: all 0.5s cubic-bezier(0.175,0.885,0.32,1.275);
-    }
-    .dark .stat-card-inner {
-      background: rgba(30, 41, 59, 0.4) !important;
-      border: 1px solid rgba(255,255,255,0.05) !important;
-    }
-    .stat-card-inner:hover {
-      transform: translateY(-4px) scale(1.02);
-      box-shadow: 0 20px 40px -10px rgba(139,92,246,0.2);
-    }
-
-    /* Premium Buttons */
-    .btn-premium {
-      position: relative;
-      overflow: hidden;
-      background: linear-gradient(to right, #7c3aed, #2563eb) !important;
-      box-shadow: 0 4px 15px rgba(124,58,237,0.3) !important;
-      transition: all 0.3s ease !important;
-      border: none !important;
-      color: white !important;
-    }
-    .btn-premium:hover {
-      box-shadow: 0 0 30px rgba(124,58,237,0.5) !important;
-      transform: scale(1.02) !important;
-    }
-    .btn-premium::before {
-      content: ""; position: absolute; top: 0; left: 0; width: 50%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-      animation: shine 3s infinite; z-index: 1; pointer-events: none;
-    }
-  </style>
+  </script>
 </head>
 
-<body class="bg-slate-50 dark:bg-[#0a0e1a] text-slate-900 dark:text-slate-100 font-sans min-h-screen transition-colors duration-500">
+<body class="bg-slate-50 dark:bg-[#030014] text-slate-900 dark:text-white font-sans min-h-screen flex items-center justify-center p-4 relative overflow-hidden selection:bg-brand-500/30 transition-colors duration-500">
 
-<!-- ════════════════════════════════════════════════
-     ANIMATED BACKGROUND
-     ════════════════════════════════════════════════ -->
-<div class="fixed inset-0 pointer-events-none overflow-hidden z-0">
-  <!-- Mouse Follow Glow -->
-  <div id="dashboard-cursor-glow" class="pointer-events-none fixed top-0 left-0 w-[500px] h-[500px] bg-purple-500/20 dark:bg-brand-500/15 rounded-full blur-[120px] mix-blend-screen opacity-0 transition-opacity duration-300 z-0 transform -translate-x-1/2 -translate-y-1/2 will-change-transform hidden sm:block"></div>
-  
-  <!-- Aurora Gradients -->
-  <div class="absolute top-[5%] left-[5%] w-[800px] h-[800px] bg-violet-400/20 dark:bg-violet-600/15 rounded-full blur-[120px] aurora-blob-1 mix-blend-multiply dark:mix-blend-screen"></div>
-  <div class="absolute bottom-[5%] right-[5%] w-[700px] h-[700px] bg-cyan-400/15 dark:bg-cyan-600/10 rounded-full blur-[140px] aurora-blob-2 mix-blend-multiply dark:mix-blend-screen"></div>
-  
-  <!-- Grid overlay -->
-  <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik00MCAwaE0wIDB2NDBoNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPgo8L3N2Zz4=')] bg-repeat opacity-40 mix-blend-overlay hidden dark:block"></div>
-  <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik00MCAwaE0wIDB2NDBoNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgwLDAsMCwwLjAzKSIvPgo8L3N2Zz4=')] bg-repeat opacity-60 block dark:hidden"></div>
-  
-  <!-- Noise texture & Vignette -->
-  <div class="noise-overlay opacity-[0.015] dark:opacity-[0.03]"></div>
-  <div class="absolute inset-0 bg-radial from-transparent to-slate-50/50 dark:to-[#0a0e1a]/80 pointer-events-none fade-in"></div>
-</div>
-
-<!-- ════════════════════════════════════════════════
-     HEADER
-     ════════════════════════════════════════════════ -->
-<header class="fixed top-0 w-full z-50 header-glass">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-    <!-- Logo -->
-    <div class="flex items-center gap-3">
-      <div class="logo-mark w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 via-brand-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-brand-500/25">
-        <span class="material-symbols-outlined text-white text-lg" style="font-variation-settings:'FILL' 1;">view_kanban</span>
-      </div>
-      <div class="hidden sm:block">
-        <h1 class="text-sm font-extrabold tracking-tight leading-none bg-gradient-to-r from-slate-900 via-brand-700 to-brand-500 dark:from-white dark:via-brand-200 dark:to-cyan-300 bg-clip-text text-transparent">Kanban</h1>
-        <p class="text-[9px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-[0.25em]">Task Manager</p>
-      </div>
-    </div>
-
-    <!-- Nav pills -->
-    <nav class="hidden md:flex items-center nav-pills-container rounded-2xl p-1 gap-0.5">
-      <a href="#board" data-tab="board" class="nav-pill active text-xs font-semibold px-5 py-2 rounded-xl transition-all duration-300">
-        <span class="material-symbols-outlined text-[14px] mr-1" style="font-variation-settings:'FILL' 1; vertical-align: -2px;">dashboard</span>Bảng
-      </a>
-      <a href="#tasks" data-tab="tasks" class="nav-pill text-xs font-medium px-5 py-2 rounded-xl transition-all duration-300">
-        <span class="material-symbols-outlined text-[14px] mr-1" style="vertical-align: -2px;">checklist</span>Công việc
-      </a>
-      <a href="#archive" data-tab="archive" class="nav-pill text-xs font-medium px-5 py-2 rounded-xl transition-all duration-300">
-        <span class="material-symbols-outlined text-[14px] mr-1" style="vertical-align: -2px;">inventory_2</span>Lưu trữ
-      </a>
-    </nav>
-
-    <!-- Right side -->
-    <div class="flex items-center gap-3">
-      <button id="theme-toggle" class="theme-toggle bg-slate-200/80 dark:bg-brand-600 cursor-pointer" title="Chuyển giao diện"></button>
-      <div id="auth-container" class="flex items-center gap-2">
-        <button id="btn-login" class="login-btn btn-premium text-xs font-bold px-6 py-2.5 rounded-xl text-white transition-all active:scale-95">
-          Đăng nhập
-        </button>
-        <div id="user-profile" class="hidden items-center gap-2 relative group cursor-pointer">
-          <div class="flex items-center gap-2">
-            <img id="user-avatar" src="" alt="Avatar" class="w-9 h-9 rounded-xl ring-2 ring-brand-400/30 dark:ring-brand-500/30 shadow-lg transition-transform group-hover:scale-105" />
-            <span id="user-name" class="text-xs font-bold hidden lg:block max-w-[120px] truncate group-hover:text-brand-500 transition-colors"></span>
-            <span class="material-symbols-outlined text-[16px] text-slate-400 group-hover:text-brand-500 transition-colors hidden lg:block">expand_more</span>
-          </div>
-          
-          <!-- User Profile Dropdown -->
-          <div class="absolute right-0 top-full mt-3 w-48 bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible z-50 border border-slate-100/80 dark:border-slate-700/50 overflow-hidden py-1.5 transition-all duration-200 transform origin-top-right scale-95 group-hover:scale-100">
-            <button id="btn-edit-profile" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-xs font-semibold transition-all flex items-center gap-2.5">
-              <span class="w-7 h-7 rounded-lg bg-brand-50 dark:bg-brand-900/20 flex items-center justify-center">
-                <span class="material-symbols-outlined text-[14px] text-brand-500">manage_accounts</span>
-              </span>
-              Sửa thông tin
-            </button>
-            <div class="border-t border-slate-100 dark:border-slate-700/50 my-1 mx-3"></div>
-            <button id="btn-logout" class="w-full text-left px-4 py-2.5 hover:bg-red-50 dark:hover:bg-red-900/10 text-xs font-semibold text-red-500 transition-all flex items-center gap-2.5">
-              <span class="w-7 h-7 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
-                <span class="material-symbols-outlined text-[14px]">logout</span>
-              </span>
-              Đăng xuất
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- Bottom glow line -->
-  <div class="header-glow-line"></div>
-</header>
-
-<!-- ════════════════════════════════════════════════
-     MAIN CONTENT
-     ════════════════════════════════════════════════ -->
-<main class="relative z-10 pt-24 pb-28 px-4 sm:px-6 max-w-7xl mx-auto">
-
-  <!-- ═══════ TAB: BẢNG (Board) ═══════ -->
-  <div class="tab-view tab-view-active" data-view="board">
-
-  <!-- Hero -->
-  <div class="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 hero-enter">
-    <div>
-      <div class="inline-flex items-center gap-2 mb-3 hero-enter hero-enter-delay">
-        <div class="h-px w-8 bg-gradient-to-r from-brand-500 to-transparent"></div>
-        <p class="text-[10px] font-black text-brand-500 dark:text-brand-400 uppercase tracking-[0.25em]">Workspace</p>
-      </div>
-      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight hero-enter leading-tight">
-        <span class="bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent">Không gian</span>
-        <br class="sm:hidden"/>
-        <span class="bg-gradient-to-r from-brand-600 via-violet-500 to-cyan-400 bg-clip-text text-transparent"> làm việc</span>
-      </h2>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 hero-enter hero-enter-delay max-w-md">Quản lý và theo dõi tiến độ đồ án của bạn một cách hiệu quả</p>
-    </div>
-    <div class="flex items-center gap-2.5 flex-wrap">
-      <button id="btn-add-task" class="btn-premium hidden items-center gap-2 text-white text-xs font-bold pl-4 pr-5 py-2.5 rounded-xl transition-all active:scale-95">
-        <span class="material-symbols-outlined text-[16px]" style="font-variation-settings:'FILL' 1;">add_circle</span>
-        Thêm mới
-      </button>
-      <div class="relative group">
-        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[16px] group-focus-within:text-brand-500 transition-colors">search</span>
-        <input id="search-task" class="search-input bg-white/70 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/50 rounded-xl py-2.5 pl-9 pr-4 text-xs w-44 sm:w-52 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400/40 placeholder:text-slate-400 transition-all backdrop-blur-sm" placeholder="Tìm kiếm nhiệm vụ..." type="text"/>
-      </div>
-      <div class="relative">
-        <select id="filter-priority" class="filter-select appearance-none bg-white/70 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/50 rounded-xl py-2.5 pl-3 pr-9 text-xs font-semibold cursor-pointer focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400/40 transition-all backdrop-blur-sm">
-          <option value="all">Tất cả</option>
-          <option value="cao">🔴 Cao</option>
-          <option value="trung_binh">🟡 Trung bình</option>
-          <option value="thap">🔵 Thấp</option>
-        </select>
-        <span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-[14px]">unfold_more</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════ STATS OVERVIEW ═══════ -->
-  <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-8 hero-enter hero-enter-delay">
-    <div class="stat-card stat-card-todo group">
-      <div class="stat-card-inner">
-        <div class="flex items-center justify-between mb-2">
-          <div class="stat-icon-wrapper bg-brand-100 dark:bg-brand-900/30">
-            <span class="material-symbols-outlined text-[18px] text-brand-600 dark:text-brand-400" style="font-variation-settings:'FILL' 1;">pending_actions</span>
-          </div>
-          <span class="stat-trend text-[9px] font-bold px-2 py-0.5 rounded-full bg-brand-50 dark:bg-brand-900/20 text-brand-600 dark:text-brand-400">
-            <span class="material-symbols-outlined text-[10px]" style="vertical-align: -1px;">trending_up</span> Cần làm
-          </span>
-        </div>
-        <div class="stat-number text-2xl sm:text-3xl font-black text-slate-800 dark:text-white" id="stat-todo">0</div>
-        <p class="text-[10px] text-slate-400 font-semibold mt-0.5">nhiệm vụ chờ xử lý</p>
-      </div>
-    </div>
-    <div class="stat-card stat-card-doing group">
-      <div class="stat-card-inner">
-        <div class="flex items-center justify-between mb-2">
-          <div class="stat-icon-wrapper bg-amber-100 dark:bg-amber-900/30">
-            <span class="material-symbols-outlined text-[18px] text-amber-600 dark:text-amber-400" style="font-variation-settings:'FILL' 1;">autorenew</span>
-          </div>
-          <span class="stat-trend text-[9px] font-bold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
-            <span class="material-symbols-outlined text-[10px] animate-spin-slow" style="vertical-align: -1px;">sync</span> Đang làm
-          </span>
-        </div>
-        <div class="stat-number text-2xl sm:text-3xl font-black text-slate-800 dark:text-white" id="stat-doing">0</div>
-        <p class="text-[10px] text-slate-400 font-semibold mt-0.5">đang triển khai</p>
-      </div>
-    </div>
-    <div class="stat-card stat-card-done group">
-      <div class="stat-card-inner">
-        <div class="flex items-center justify-between mb-2">
-          <div class="stat-icon-wrapper bg-emerald-100 dark:bg-emerald-900/30">
-            <span class="material-symbols-outlined text-[18px] text-emerald-600 dark:text-emerald-400" style="font-variation-settings:'FILL' 1;">task_alt</span>
-          </div>
-          <span class="stat-trend text-[9px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400">
-            <span class="material-symbols-outlined text-[10px]" style="vertical-align: -1px;">check</span> Xong
-          </span>
-        </div>
-        <div class="stat-number text-2xl sm:text-3xl font-black text-slate-800 dark:text-white" id="stat-done">0</div>
-        <p class="text-[10px] text-slate-400 font-semibold mt-0.5">đã hoàn thành</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════ KANBAN BOARD ═══════ -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5 items-start">
-
-    <!-- Column: Cần làm -->
-    <section class="kanban-column-wrapper kanban-column">
-      <div class="kanban-column-header">
-        <div class="column-accent column-accent-todo"></div>
-        <div class="p-4 pb-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 shadow-sm shadow-brand-500/50 ring-2 ring-brand-100 dark:ring-brand-900/50"></div>
-              <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">Cần làm</h3>
-              <span id="count-todo" class="text-[10px] font-black text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30 px-2 py-0.5 rounded-lg min-w-[20px] text-center">0</span>
-            </div>
-            <button class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-              <span class="material-symbols-outlined text-[16px] text-slate-400">more_horiz</span>
-            </button>
-          </div>
-        </div>
-      </div>
-      <div id="column-todo" class="space-y-3 kanban-dropzone min-h-[140px] rounded-xl border-2 border-dashed border-transparent px-4 pb-4 transition-all duration-200" data-status="todo"></div>
-    </section>
-
-    <!-- Column: Đang làm -->
-    <section class="kanban-column-wrapper kanban-column">
-      <div class="kanban-column-header">
-        <div class="column-accent column-accent-doing"></div>
-        <div class="p-4 pb-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 shadow-sm shadow-amber-500/50 ring-2 ring-amber-100 dark:ring-amber-900/50"></div>
-              <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">Đang làm</h3>
-              <span id="count-doing" class="text-[10px] font-black text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-2 py-0.5 rounded-lg min-w-[20px] text-center">0</span>
-            </div>
-            <button class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-              <span class="material-symbols-outlined text-[16px] text-slate-400">more_horiz</span>
-            </button>
-          </div>
-        </div>
-      </div>
-      <div id="column-doing" class="space-y-3 kanban-dropzone min-h-[140px] rounded-xl border-2 border-dashed border-transparent px-4 pb-4 transition-all duration-200" data-status="in_progress"></div>
-    </section>
-
-    <!-- Column: Hoàn thành -->
-    <section class="kanban-column-wrapper kanban-column">
-      <div class="kanban-column-header">
-        <div class="column-accent column-accent-done"></div>
-        <div class="p-4 pb-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-              <div class="w-2.5 h-2.5 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 shadow-sm shadow-emerald-500/50 ring-2 ring-emerald-100 dark:ring-emerald-900/50"></div>
-              <h3 class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200">Hoàn thành</h3>
-              <span id="count-done" class="text-[10px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-lg min-w-[20px] text-center">0</span>
-            </div>
-            <button class="w-7 h-7 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-              <span class="material-symbols-outlined text-[16px] text-slate-400">more_horiz</span>
-            </button>
-          </div>
-        </div>
-      </div>
-      <div id="column-done" class="space-y-3 kanban-dropzone min-h-[140px] rounded-xl border-2 border-dashed border-transparent px-4 pb-4 transition-all duration-200" data-status="done"></div>
-    </section>
-
-  </div>
-
-  </div><!-- /tab-view: board -->
-
-  <!-- ═══════ TAB: CÔNG VIỆC (Task List) ═══════ -->
-  <div class="tab-view hidden" data-view="tasks">
-    <div class="mb-6">
-      <div class="inline-flex items-center gap-2 mb-3">
-        <div class="h-px w-8 bg-gradient-to-r from-brand-500 to-transparent"></div>
-        <p class="text-[10px] font-black text-brand-500 dark:text-brand-400 uppercase tracking-[0.25em]">Task List</p>
-      </div>
-      <h2 class="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
-        <span class="bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent">Danh sách</span>
-        <span class="bg-gradient-to-r from-brand-600 via-violet-500 to-cyan-400 bg-clip-text text-transparent"> công việc</span>
-      </h2>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md">Xem và quản lý tất cả nhiệm vụ ở dạng danh sách</p>
-    </div>
-    <div id="task-list-view" class="kanban-column-wrapper p-4 sm:p-6"></div>
-  </div><!-- /tab-view: tasks -->
-
-  <!-- ═══════ TAB: LƯU TRỮ (Archive) ═══════ -->
-  <div class="tab-view hidden" data-view="archive">
-    <div class="mb-6">
-      <div class="inline-flex items-center gap-2 mb-3">
-        <div class="h-px w-8 bg-gradient-to-r from-violet-500 to-transparent"></div>
-        <p class="text-[10px] font-black text-violet-500 dark:text-violet-400 uppercase tracking-[0.25em]">Archive</p>
-      </div>
-      <h2 class="text-3xl sm:text-4xl font-black tracking-tight leading-tight">
-        <span class="bg-gradient-to-r from-slate-900 via-slate-700 to-slate-500 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent">Kho</span>
-        <span class="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-400 bg-clip-text text-transparent"> lưu trữ</span>
-      </h2>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-md">Nhiệm vụ đã hoàn thành và được lưu trữ</p>
-    </div>
-    <div id="archive-view" class="kanban-column-wrapper p-4 sm:p-6"></div>
-  </div><!-- /tab-view: archive -->
-
-</main>
-
-<!-- Bottom Nav (Mobile) -->
-<nav class="fixed bottom-0 left-0 w-full z-50 mobile-nav-glass flex justify-around items-center px-4 pb-5 pt-2 rounded-t-3xl md:hidden">
-  <div class="mobile-nav-item flex flex-col items-center gap-0.5 bg-brand-50 dark:bg-brand-900/30 text-brand-600 dark:text-brand-400 rounded-2xl px-5 py-2 shadow-sm cursor-pointer" data-tab="board">
-    <span class="material-symbols-outlined text-[20px]" style="font-variation-settings:'FILL' 1;">view_kanban</span>
-    <span class="text-[9px] font-black">Bảng</span>
-  </div>
-  <div class="mobile-nav-item flex flex-col items-center gap-0.5 text-slate-400 rounded-2xl px-5 py-2 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer" data-tab="tasks">
-    <span class="material-symbols-outlined text-[20px]">checklist</span>
-    <span class="text-[9px] font-bold">Việc</span>
-  </div>
-  <div class="mobile-nav-item flex flex-col items-center gap-0.5 text-slate-400 rounded-2xl px-5 py-2 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer" data-tab="archive">
-    <span class="material-symbols-outlined text-[20px]">archive</span>
-    <span class="text-[9px] font-bold">Trữ</span>
-  </div>
-</nav>
-
-<!-- FAB (Mobile) -->
-<button class="fab fixed bottom-24 right-5 w-14 h-14 bg-gradient-to-br from-brand-600 via-violet-500 to-cyan-400 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-brand-500/30 md:hidden z-40">
-  <span class="material-symbols-outlined text-[24px]" style="font-variation-settings:'FILL' 1;">add</span>
-  <div class="fab-pulse"></div>
+<!-- Theme Toggle Button -->
+<button id="theme-toggle" class="fixed top-6 right-6 z-50 p-3 rounded-2xl bg-white/60 dark:bg-[#0a0a0a]/60 backdrop-blur-xl border border-slate-200/60 dark:border-white/10 shadow-lg text-slate-600 dark:text-neutral-400 hover:text-brand-500 dark:hover:text-white transition-all hover:scale-105 active:scale-95 group">
+  <span class="material-symbols-outlined dark:hidden block transform group-hover:rotate-12 transition-transform">light_mode</span>
+  <span class="material-symbols-outlined hidden dark:block transform group-hover:-rotate-12 transition-transform">dark_mode</span>
 </button>
+
 <!-- ════════════════════════════════════════════════
-     MODAL – Thêm / Sửa nhiệm vụ
+     120FPS GPU ACCELERATED AURORA BACKGROUND
      ════════════════════════════════════════════════ -->
-<div id="task-modal" class="fixed inset-0 z-[60] hidden bg-slate-900/60 backdrop-blur-sm opacity-0 transition-opacity duration-300">
-  <div class="flex justify-end min-h-screen">
-    <div class="modal-content w-full max-w-md h-dvh rounded-l-3xl p-6 sm:p-8 shadow-2xl transform translate-x-full transition-all duration-500 border-l border-white/50 dark:border-slate-700/50 bg-white dark:bg-slate-800 overflow-y-auto">
-      <!-- Modal header gradient -->
-      <div class="absolute top-0 left-0 right-0 h-1 rounded-tl-3xl bg-gradient-to-r from-brand-500 via-violet-500 to-cyan-400"></div>
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <h3 id="modal-title" class="text-lg font-black bg-gradient-to-r from-slate-900 to-slate-600 dark:from-white dark:to-slate-300 bg-clip-text text-transparent">Thêm nhiệm vụ</h3>
-          <p id="modal-subtitle" class="text-xs text-slate-400 mt-0.5">Tạo nhiệm vụ mới cho dự án</p>
+<style>
+/* 120fps optimized animations */
+@keyframes blob-1 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(30px, -50px, 0) scale(1.1); }
+  66% { transform: translate3d(-20px, 20px, 0) scale(0.9); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes blob-2 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(-30px, 50px, 0) scale(1.1); }
+  66% { transform: translate3d(20px, -20px, 0) scale(0.9); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes card-enter {
+  from { opacity: 0; transform: translate3d(0, 40px, 0) scale(0.95); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes sweep {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@keyframes shine {
+  0% { transform: translateX(-100%) skewX(-15deg); }
+  50%, 100% { transform: translateX(200%) skewX(-15deg); }
+}
+@keyframes border-spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.aurora-blob-1 {
+  animation: blob-1 8s infinite ease-in-out;
+  will-change: transform;
+}
+.aurora-blob-2 {
+  animation: blob-2 10s infinite ease-in-out;
+  animation-delay: -2s;
+  will-change: transform;
+}
+.aurora-blob-3 {
+  animation: blob-1 12s infinite ease-in-out reverse;
+  animation-delay: -4s;
+  will-change: transform;
+}
+.animate-card-enter {
+  animation: card-enter 1s cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+  will-change: transform, opacity;
+}
+.animate-gradient-btn {
+  background-size: 200% auto;
+  animation: sweep 4s linear infinite;
+}
+
+/* Fix browser autocomplete breaking dark inputs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px #09090b inset !important;
+  -webkit-text-fill-color: white !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: white;
+}
+
+/* Glowing border effect on hover card */
+.glass-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(180deg, rgba(139,92,246,0.15) 0%, rgba(255,255,255,0) 100%);
+  border-radius: inherit;
+  z-index: -1;
+  pointer-events: none;
+}
+.dark .glass-card::before {
+  background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%);
+}
+
+/* Apple-style Animated Border */
+.card-border-wrap {
+  position: relative;
+  border-radius: 1.5rem;
+  isolation: isolate;
+}
+.card-border-wrap::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: conic-gradient(from 0deg at 50% 50%, rgba(139,92,246,0) 0%, rgba(139,92,246,0) 50%, rgba(139,92,246,0.8) 80%, rgba(6,182,212,0.8) 100%);
+  animation: border-spin 4s linear infinite;
+  z-index: -2;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  padding: 2px;
+}
+.card-border-wrap:hover::after {
+  opacity: 1;
+}
+
+/* Shine effect on button */
+.btn-shine::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shine 3s infinite;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Physics based input transition */
+input, label {
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+</style>
+
+<!-- Mouse Follow Glow -->
+<div id="cursor-glow" class="pointer-events-none fixed top-0 left-0 w-[400px] h-[400px] bg-purple-500/20 dark:bg-brand-500/15 rounded-full blur-[100px] mix-blend-screen opacity-0 transition-opacity duration-300 z-0 transform -translate-x-1/2 -translate-y-1/2 will-change-transform hidden sm:block"></div>
+
+<div class="fixed inset-0 pointer-events-none overflow-hidden z-0 bg-slate-50 dark:bg-[#030014] transition-colors duration-500">
+  <!-- Grid overlay -->
+  <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik00MCAwaE0wIDB2NDBoNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgwLDAsMCwwLjA0KSIvPgo8L3N2Zz4=')] dark:bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik00MCAwaE0wIDB2NDBoNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPgo8L3N2Zz4=')] bg-repeat -mt-px opacity-60 dark:opacity-30"></div>
+  <!-- Aurora Gradients (Adjusted for Light/Dark) -->
+  <div class="absolute top-[20%] left-[20%] w-[500px] h-[500px] bg-violet-400/40 dark:bg-violet-600/30 rounded-full blur-[100px] aurora-blob-1 mix-blend-multiply dark:mix-blend-screen transition-colors duration-1000"></div>
+  <div class="absolute bottom-[10%] right-[10%] w-[600px] h-[600px] bg-cyan-400/30 dark:bg-cyan-600/20 rounded-full blur-[120px] aurora-blob-2 mix-blend-multiply dark:mix-blend-screen transition-colors duration-1000"></div>
+  <div class="absolute top-[40%] right-[30%] w-[400px] h-[400px] bg-fuchsia-400/30 dark:bg-fuchsia-600/20 rounded-full blur-[80px] aurora-blob-3 mix-blend-multiply dark:mix-blend-screen transition-colors duration-1000"></div>
+  <!-- Vignette -->
+  <div class="absolute inset-0 bg-radial from-transparent to-slate-50/80 dark:to-[#030014]/90 pointer-events-none transition-colors duration-700"></div>
+</div>
+
+<!-- ════════════════════════════════════════════════
+     ULTRA PREMIUM AUTH CARD
+     ════════════════════════════════════════════════ -->
+<div class="relative z-10 w-full max-w-[420px] animate-card-enter opacity-0">
+  
+  <div class="card-border-wrap transition-transform duration-500 hover:-translate-y-2">
+    <div class="glass-card relative bg-white/60 dark:bg-[#0a0a0c]/80 backdrop-blur-3xl rounded-[1.5rem] p-8 sm:p-10 shadow-[0_32px_80px_rgba(0,0,0,0.05)] dark:shadow-[0_0_80px_rgba(139,92,246,0.1)] border border-slate-200/50 dark:border-white/5 transition-colors duration-500">
+      
+      <!-- Header -->
+    <div class="text-center mb-10">
+      <div class="relative mx-auto w-16 h-16 rounded-2xl mb-6 flex items-center justify-center p-[2px] bg-linear-to-b from-slate-200 to-transparent dark:from-white/20 dark:to-white/0 shadow-[0_16px_40px_rgba(139,92,246,0.2)] dark:shadow-[0_0_40px_rgba(139,92,246,0.3)]">
+        <div class="w-full h-full bg-slate-50 dark:bg-[#0a0a0a] rounded-[14px] flex items-center justify-center relative overflow-hidden">
+          <div class="absolute inset-0 bg-linear-to-br from-violet-500/10 to-cyan-400/10 dark:from-violet-500/20 dark:to-cyan-400/20"></div>
+          <span class="material-symbols-outlined text-slate-800 dark:text-white text-[32px] relative z-10" style="font-variation-settings:'FILL' 1;">view_kanban</span>
         </div>
-        <button id="btn-close-modal" class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-700/50 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center transition-all group">
-          <span class="material-symbols-outlined text-[18px] text-slate-400 group-hover:text-red-500 transition-colors">close</span>
+      </div>
+      <h1 class="text-3xl font-black tracking-tight text-slate-900 dark:text-white mb-2 transition-colors">Kanban<span class="text-brand-500">.</span></h1>
+      <p class="text-sm text-slate-500 dark:text-neutral-400 font-medium transition-colors">Khởi động luồng công việc tuyệt đỉnh.</p>
+    </div>
+
+    <!-- ═══ LOGIN FORM ═══ -->
+    <form id="form-login" class="space-y-5">
+      <!-- Input Group -->
+      <div class="relative group">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 peer-focus:text-brand-600 dark:peer-focus:text-brand-400 transition-colors z-10">mail</span>
+        <input type="email" id="login-email" required
+          class="peer w-full bg-slate-100/50 dark:bg-white/3 hover:bg-slate-200/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-xl pl-11 pr-4 pt-6 pb-2 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-white/5 focus:outline-none focus:ring-2 focus:ring-purple-500/30 dark:focus:ring-purple-500/50 focus:border-purple-500 transition-all duration-300 backdrop-blur-sm"
+          placeholder=" ">
+        <label class="absolute left-11 top-4 text-sm text-slate-500 dark:text-neutral-500 pointer-events-none transition-all duration-300 peer-focus:-translate-y-2 peer-focus:text-[10px] peer-focus:text-purple-600 dark:peer-focus:text-purple-400 peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-[:not(:placeholder-shown)]:-translate-y-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Địa chỉ Email</label>
+      </div>
+
+      <!-- Input Group -->
+      <div class="relative group">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 peer-focus:text-brand-600 dark:peer-focus:text-brand-400 transition-colors z-10">lock</span>
+        <input type="password" id="login-password" required minlength="6"
+          class="peer w-full bg-slate-100/50 dark:bg-white/3 hover:bg-slate-200/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-xl pl-11 pr-12 pt-6 pb-2 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-white/5 focus:outline-none focus:ring-2 focus:ring-purple-500/30 dark:focus:ring-purple-500/50 focus:border-purple-500 transition-all duration-300 backdrop-blur-sm"
+          placeholder=" ">
+        <label class="absolute left-11 top-4 text-sm text-slate-500 dark:text-neutral-500 pointer-events-none transition-all duration-300 peer-focus:-translate-y-2 peer-focus:text-[10px] peer-focus:text-purple-600 dark:peer-focus:text-purple-400 peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-[:not(:placeholder-shown)]:-translate-y-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Mật khẩu</label>
+        <button type="button" class="btn-toggle-password absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors z-10 hidden peer-[:not(:placeholder-shown)]:block">
+          <span class="material-symbols-outlined text-[20px]">visibility_off</span>
         </button>
       </div>
-      <form id="task-form" class="space-y-5">
-        <input type="hidden" id="task-edit-id" value="">
-        <div>
-          <label class="block text-[10px] font-black text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-[0.15em]">Tên nhiệm vụ</label>
-          <input type="text" id="task-title" required class="w-full bg-slate-50/80 dark:bg-slate-900/50 border border-slate-200/80 dark:border-slate-700/50 rounded-xl py-3 px-4 text-sm font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-brand-500/20 focus:border-brand-400/40 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500" placeholder="Nhập tên nhiệm vụ...">
-        </div>
-        <div>
-          <label class="block text-[10px] font-black text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-[0.15em]">Mô tả</label>
-          <textarea id="task-desc" rows="3" class="w-full bg-slate-50/80 dark:bg-slate-900/50 border border-slate-200/80 dark:border-slate-700/50 rounded-xl py-3 px-4 text-sm text-slate-900 dark:text-white border-brand-400/40 transition-all resize-none placeholder:text-slate-400 dark:placeholder:text-slate-500" placeholder="Mô tả chi tiết..."></textarea>
-        </div>
-        <div>
-          <label class="block text-[10px] font-black text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-[0.15em]">Ưu tiên</label>
-          <div class="grid grid-cols-3 gap-2.5">
-            <label class="cursor-pointer">
-              <input type="radio" name="task-priority" value="cao" class="peer sr-only">
-              <div class="text-center py-2.5 rounded-xl border-2 border-slate-200/80 dark:border-slate-700/50 peer-checked:bg-gradient-to-br peer-checked:from-red-50 peer-checked:to-rose-50 dark:peer-checked:from-red-900/20 dark:peer-checked:to-rose-900/20 peer-checked:text-red-600 dark:peer-checked:text-red-400 peer-checked:border-red-300 dark:peer-checked:border-red-700 peer-checked:font-black text-xs font-medium text-slate-600 dark:text-slate-300 transition-all peer-checked:shadow-sm">🔴 Cao</div>
-            </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="task-priority" value="trung_binh" class="peer sr-only" checked>
-              <div class="text-center py-2.5 rounded-xl border-2 border-slate-200/80 dark:border-slate-700/50 peer-checked:bg-gradient-to-br peer-checked:from-amber-50 peer-checked:to-yellow-50 dark:peer-checked:from-amber-900/20 dark:peer-checked:to-yellow-900/20 peer-checked:text-amber-600 dark:peer-checked:text-amber-400 peer-checked:border-amber-300 dark:peer-checked:border-amber-700 peer-checked:font-black text-xs font-medium text-slate-600 dark:text-slate-300 transition-all peer-checked:shadow-sm">🟡 TB</div>
-            </label>
-            <label class="cursor-pointer">
-              <input type="radio" name="task-priority" value="thap" class="peer sr-only">
-              <div class="text-center py-2.5 rounded-xl border-2 border-slate-200/80 dark:border-slate-700/50 peer-checked:bg-gradient-to-br peer-checked:from-blue-50 peer-checked:to-indigo-50 dark:peer-checked:from-blue-900/20 dark:peer-checked:to-indigo-900/20 peer-checked:text-blue-600 dark:peer-checked:text-blue-400 peer-checked:border-blue-300 dark:peer-checked:border-blue-700 peer-checked:font-black text-xs font-medium text-slate-600 dark:text-slate-300 transition-all peer-checked:shadow-sm">🔵 Thấp</div>
-            </label>
-          </div>
-        </div>
-        <div class="flex justify-end gap-2.5 pt-3">
-          <button type="button" id="btn-cancel-modal" class="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700/50 transition-all">Hủy</button>
-          <button type="submit" id="btn-submit-modal" class="btn-premium px-6 py-2.5 rounded-xl text-xs font-bold text-white transition-all active:scale-95">Lưu</button>
-        </div>
-      </form>
+
+      <p id="login-error" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-500/10 rounded-xl px-4 py-3 border border-red-200 dark:border-red-500/20 shadow-inner"></p>
+
+      <button type="submit" class="w-full relative group overflow-hidden bg-gradient-to-r from-purple-600 via-brand-500 to-blue-600 text-white font-bold rounded-xl py-3.5 text-sm transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-purple-500/30 dark:hover:shadow-[0_0_40px_rgba(147,51,234,0.6)] active:scale-95 mt-2 animate-gradient-btn btn-shine">
+        <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out"></div>
+        <span class="relative z-10 flex justify-center items-center gap-2">
+          Đăng Nhập <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">rocket_launch</span>
+        </span>
+      </button>
+
+      <div class="text-center mt-6">
+        <p class="text-[13px] text-slate-500 dark:text-neutral-400 transition-colors">
+          Người dùng mới? 
+          <a href="#" id="go-to-register" class="text-slate-800 dark:text-white hover:text-purple-600 dark:hover:text-blue-400 font-semibold hover:underline transition-all">Tạo tài khoản</a>
+        </p>
+      </div>
+    </form>
+
+    <!-- ═══ REGISTER FORM ═══ -->
+    <form id="form-register" class="space-y-5 hidden">
+      <div class="relative group">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 peer-focus:text-brand-600 dark:peer-focus:text-brand-400 transition-colors z-10">mail</span>
+        <input type="email" id="register-email" required
+          class="peer w-full bg-slate-100/50 dark:bg-white/3 hover:bg-slate-200/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-xl pl-11 pr-4 pt-6 pb-2 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm"
+          placeholder=" ">
+        <label class="absolute left-11 top-4 text-sm text-slate-500 dark:text-neutral-500 pointer-events-none transition-all duration-300 peer-focus:-translate-y-2 peer-focus:text-[10px] peer-focus:text-blue-600 dark:peer-focus:text-blue-400 peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-[:not(:placeholder-shown)]:-translate-y-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Địa chỉ Email</label>
+      </div>
+
+      <div class="relative group">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 peer-focus:text-brand-600 dark:peer-focus:text-brand-400 transition-colors z-10">lock</span>
+        <input type="password" id="register-password" required minlength="6"
+          class="peer w-full bg-slate-100/50 dark:bg-white/3 hover:bg-slate-200/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-xl pl-11 pr-12 pt-6 pb-2 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm"
+          placeholder=" ">
+        <label class="absolute left-11 top-4 text-sm text-slate-500 dark:text-neutral-500 pointer-events-none transition-all duration-300 peer-focus:-translate-y-2 peer-focus:text-[10px] peer-focus:text-blue-600 dark:peer-focus:text-blue-400 peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-[:not(:placeholder-shown)]:-translate-y-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Mật khẩu mới</label>
+        <button type="button" class="btn-toggle-password absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors z-10 hidden peer-[:not(:placeholder-shown)]:block">
+          <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+        </button>
+      </div>
+      
+      <div class="relative group">
+        <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-neutral-500 peer-focus:text-brand-600 dark:peer-focus:text-brand-400 transition-colors z-10">lock</span>
+        <input type="password" id="register-password-confirm" required minlength="6"
+          class="peer w-full bg-slate-100/50 dark:bg-white/3 hover:bg-slate-200/50 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-xl pl-11 pr-12 pt-6 pb-2 text-sm text-slate-900 dark:text-white focus:bg-white dark:focus:bg-white/5 focus:outline-none focus:ring-2 focus:ring-blue-500/30 dark:focus:ring-blue-500/50 focus:border-blue-500 transition-all duration-300 backdrop-blur-sm"
+          placeholder=" ">
+        <label class="absolute left-11 top-4 text-sm text-slate-500 dark:text-neutral-500 pointer-events-none transition-all duration-300 peer-focus:-translate-y-2 peer-focus:text-[10px] peer-focus:text-blue-600 dark:peer-focus:text-blue-400 peer-focus:font-bold peer-focus:uppercase peer-focus:tracking-wider peer-[:not(:placeholder-shown)]:-translate-y-2 peer-[:not(:placeholder-shown)]:text-[10px] peer-[:not(:placeholder-shown)]:font-bold peer-[:not(:placeholder-shown)]:uppercase peer-[:not(:placeholder-shown)]:tracking-wider">Xác nhận mật khẩu</label>
+        <button type="button" class="btn-toggle-password absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-neutral-500 dark:hover:text-neutral-300 transition-colors z-10 hidden peer-[:not(:placeholder-shown)]:block">
+          <span class="material-symbols-outlined text-[20px]">visibility_off</span>
+        </button>
+      </div>
+
+      <p id="register-error" class="hidden text-xs font-semibold text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-500/10 rounded-xl px-4 py-3 border border-red-200 dark:border-red-500/20 shadow-inner"></p>
+      <p id="register-success" class="hidden text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/10 rounded-xl px-4 py-3 border border-emerald-200 dark:border-emerald-500/20 shadow-inner"></p>
+
+      <button type="submit" class="w-full relative group overflow-hidden bg-gradient-to-r from-blue-600 via-brand-500 to-purple-600 text-white font-bold rounded-xl py-3.5 text-sm transition-all duration-300 hover:scale-[1.02] shadow-lg shadow-blue-500/30 dark:hover:shadow-[0_0_40px_rgba(37,99,235,0.6)] active:scale-95 mt-2 animate-gradient-btn btn-shine">
+        <div class="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-out"></div>
+        <span class="relative z-10 flex justify-center items-center gap-2">
+          Đăng ký ngay <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">person_add</span>
+        </span>
+      </button>
+
+      <div class="text-center mt-6">
+        <p class="text-[13px] text-slate-500 dark:text-neutral-400 transition-colors">
+          Đã có tài khoản? 
+          <a href="#" id="go-to-login" class="text-slate-800 dark:text-white hover:text-blue-600 dark:hover:text-purple-400 font-semibold hover:underline transition-all">Đăng nhập</a>
+        </p>
+      </div>
+    </form>
+
+    <!-- Divider -->
+    <div class="relative flex items-center py-6">
+      <div class="grow border-t border-slate-200 dark:border-white/5 transition-colors"></div>
+      <span class="shrink-0 mx-4 text-[10px] text-slate-400 dark:text-neutral-600 font-black uppercase tracking-[0.2em] transition-colors">Hoặc</span>
+      <div class="grow border-t border-slate-200 dark:border-white/5 transition-colors"></div>
     </div>
+
+    <!-- GitHub Login -->
+    <button id="btn-overlay-github" class="w-full bg-slate-100/50 hover:bg-slate-200/50 dark:bg-white/3 dark:hover:bg-white/5 border border-slate-200/80 dark:border-white/10 text-slate-800 dark:text-white font-semibold rounded-xl py-3 text-sm transition-all duration-300 hover:-translate-y-1 shadow-sm hover:shadow-md dark:shadow-[0_0_20px_rgba(255,255,255,0.05)] dark:hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] flex items-center justify-center gap-3 active:scale-95 group">
+      <svg class="w-4 h-4 fill-current group-hover:scale-110 transition-transform duration-300" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57"/></svg>
+      Tiếp tục với GitHub
+    </button>
+  </div>
   </div>
 </div>
 
-<!-- Scripts -->
-<script type="module" src="./js/main.js"></script>
+<!-- Auth Script -->
+<script type="module">
+  import { initSupabase } from './js/services/supabase.js';
+  import { signInWithGitHub, signInWithEmail, signUpWithEmail, onAuthStateChange } from './js/user/auth.js';
 
-<script>
-  // Dark Mode
-  (function() {
-    // Dashboard Cursor Glow
-    const cursorGlow = document.getElementById('dashboard-cursor-glow');
-    document.addEventListener('mousemove', (e) => {
-      if(cursorGlow) {
-        cursorGlow.style.opacity = '1';
-        cursorGlow.style.left = e.clientX + 'px';
-        cursorGlow.style.top = e.clientY + 'px';
+  initSupabase();
+
+  onAuthStateChange((_event, session) => {
+    if (session) {
+      document.querySelector('.glass-card').style.transform = 'scale(0.9)';
+      document.querySelector('.glass-card').style.opacity = '0';
+      document.querySelector('.glass-card').style.transition = 'all 0.5s ease-in';
+      setTimeout(() => { window.location.href = './pages/dashboard.html'; }, 400);
+    }
+  });
+
+  const formLogin = document.getElementById('form-login');
+  const formRegister = document.getElementById('form-register');
+  const btnGoToRegister = document.getElementById('go-to-register');
+  const btnGoToLogin = document.getElementById('go-to-login');
+  const helperText = document.querySelector('p.text-sm.text-slate-500.font-medium, p.text-sm.text-neutral-400.font-medium');
+
+  // Mouse Cursor Glow Tracking
+  const cursorGlow = document.getElementById('cursor-glow');
+  document.addEventListener('mousemove', (e) => {
+    cursorGlow.style.opacity = '1';
+    cursorGlow.style.left = e.clientX + 'px';
+    cursorGlow.style.top = e.clientY + 'px';
+  });
+  document.addEventListener('mouseleave', () => cursorGlow.style.opacity = '0');
+
+  // Theme Toggle Logic
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  themeToggleBtn.addEventListener('click', () => {
+    const html = document.documentElement;
+    if (html.classList.contains('dark')) {
+      html.classList.remove('dark');
+      localStorage.theme = 'light';
+    } else {
+      html.classList.add('dark');
+      localStorage.theme = 'dark';
+    }
+  });
+
+  // Smooth form transition
+  function switchForm(hideForm, showForm, title, subTitle) {
+    hideForm.style.opacity = '0';
+    hideForm.style.transform = 'translateY(10px) scale(0.98)';
+    setTimeout(() => {
+      hideForm.classList.add('hidden');
+      hideForm.style.transform = '';
+      
+      showForm.classList.remove('hidden');
+      showForm.style.opacity = '0';
+      showForm.style.transform = 'translateY(10px) scale(0.98)';
+      
+      helperText.textContent = subTitle;
+      
+      requestAnimationFrame(() => {
+        showForm.style.transition = 'all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
+        showForm.style.opacity = '1';
+        showForm.style.transform = 'translateY(0) scale(1)';
+      });
+    }, 200);
+  }
+
+  // Toggle Password Visibility Logic
+  document.querySelectorAll('.btn-toggle-password').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      // Prevent label tracking focus
+      e.preventDefault(); 
+      const input = btn.previousElementSibling;
+      const icon = btn.querySelector('.material-symbols-outlined');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.textContent = 'visibility';
+      } else {
+        input.type = 'password';
+        icon.textContent = 'visibility_off';
       }
     });
-    document.addEventListener('mouseleave', () => { if(cursorGlow) cursorGlow.style.opacity = '0'; });
+  });
 
-    var toggle = document.getElementById('theme-toggle');
-    var html = document.documentElement;
+  btnGoToRegister?.addEventListener('click', (e) => {
+    e.preventDefault();
+    formLogin.style.transition = 'all 0.2s ease-out';
+    switchForm(formLogin, formRegister, "Đăng ký", "Gia nhập gia đình Kanban.");
+  });
 
-    if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      html.classList.replace('light', 'dark');
+  btnGoToLogin?.addEventListener('click', (e) => {
+    e.preventDefault();
+    formRegister.style.transition = 'all 0.2s ease-out';
+    switchForm(formRegister, formLogin, "Kanban", "Khởi động luồng công việc tuyệt đỉnh.");
+  });
+
+  formLogin?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">sync</span> Đang tải...';
+    btn.disabled = true;
+
+    const email = document.getElementById('login-email').value;
+    const pass = document.getElementById('login-password').value;
+    const errEl = document.getElementById('login-error');
+    errEl.classList.add('hidden');
+    try {
+      await signInWithEmail(email, pass);
+    } catch (err) {
+      errEl.textContent = err.message || 'Sai email hoặc mật khẩu.';
+      errEl.classList.remove('hidden');
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  });
+
+  formRegister?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">sync</span> Đang tải...';
+    btn.disabled = true;
+
+    const email = document.getElementById('register-email').value;
+    const pass = document.getElementById('register-password').value;
+    const pass2 = document.getElementById('register-password-confirm').value;
+    const errEl = document.getElementById('register-error');
+    const successEl = document.getElementById('register-success');
+    errEl.classList.add('hidden');
+    successEl.classList.add('hidden');
+
+    if (pass !== pass2) { 
+      errEl.textContent = 'Mật khẩu nhập lại không khớp.'; 
+      errEl.classList.remove('hidden'); 
+      btn.innerHTML = originalText; btn.disabled = false; return; 
+    }
+    if (pass.length < 6) { 
+      errEl.textContent = 'Mật khẩu phải có ít nhất 6 ký tự.'; 
+      errEl.classList.remove('hidden'); 
+      btn.innerHTML = originalText; btn.disabled = false; return; 
     }
 
-    toggle && toggle.addEventListener('click', function() {
-      html.classList.toggle('dark');
-      html.classList.toggle('light');
-      localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
-    });
+    try {
+      await signUpWithEmail(email, pass);
+      successEl.textContent = 'Tạo tài khoản thành công! Xác nhận email để tiếp tục.';
+      successEl.classList.remove('hidden');
+      formRegister.reset();
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    } catch (err) {
+      errEl.textContent = err.message || 'Đăng ký thất bại.';
+      errEl.classList.remove('hidden');
+      btn.innerHTML = originalText;
+      btn.disabled = false;
+    }
+  });
 
-    // Login button → redirect to auth page
-    var loginBtn = document.getElementById('btn-login');
-    loginBtn && loginBtn.addEventListener('click', function() {
-      window.location.href = './user.html';
-    });
-  })();
+  document.getElementById('btn-overlay-github')?.addEventListener('click', () => {
+    document.getElementById('btn-overlay-github').innerHTML = '<span class="material-symbols-outlined animate-spin text-[18px]">sync</span> Đang kết nối...';
+    signInWithGitHub();
+  });
 </script>
 
 </body>

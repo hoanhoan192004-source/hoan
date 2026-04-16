@@ -114,7 +114,7 @@ function showLoggedOutUI() {
 }
 
 function getAuthPageUrl() {
-  return new URL('user.html', window.location.href).href;
+  return new URL('../index.html', window.location.href).href;
 }
 
 import { showToast } from '../ui/toast.js';

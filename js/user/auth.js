@@ -8,9 +8,7 @@ import { getSupabase } from '../services/supabase.js';
 // ─── OAuth ────────────────────────────────────────
 export async function signInWithGitHub() {
   // Build redirect URL to auth page (handles session → dashboard redirect)
-  const origin = window.location.origin;
-  const basePath = window.location.pathname.replace(/\/[^/]*$/, '');
-  const redirectTo = `${origin}${basePath}/user.html`;
+  const redirectTo = new URL('../index.html', window.location.href).href;
 
   const { data, error } = await getSupabase().auth.signInWithOAuth({
     provider: 'github',
