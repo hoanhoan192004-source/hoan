@@ -19,6 +19,7 @@ export const DB_CONFIG = {
     description: 'description',
     status: 'status',
     priority: 'priority',
+    deadline: 'deadline',
     createdAt: 'created_at',
     updatedAt: 'updated_at'
   }

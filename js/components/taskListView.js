@@ -4,7 +4,7 @@
  */
 
 import { STATUS } from '../config.js';
-import { normalizeStatus, formatDate, escapeHTML, normalizePriority } from '../helpers/utils.js';
+import { normalizeStatus, formatDate, escapeHTML, normalizePriority, getDeadlineStatus, formatDeadlineRelative } from '../helpers/utils.js';
 
 const STATUS_BADGE = {
   todo:        { label: 'Cần làm',    icon: 'pending_actions', colorClass: 'text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-brand-900/30' },
@@ -98,6 +98,9 @@ export function renderTaskListView(tasks = []) {
             <th class="task-list-sortable text-left hidden lg:table-cell" data-sort="created_at">
               Ngày tạo ${getSortIcon('created_at')}
             </th>
+            <th class="task-list-sortable text-left hidden lg:table-cell" data-sort="deadline">
+              Deadline ${getSortIcon('deadline')}
+            </th>
             <th class="w-28 text-right">Thao tác</th>
           </tr>
         </thead>
@@ -173,6 +176,9 @@ function renderTaskRow(task, index) {
       <td class="hidden lg:table-cell">
         <span class="text-[11px] text-slate-400">${formatDate(task.created_at)}</span>
       </td>
+      <td class="hidden lg:table-cell">
+        ${renderDeadlineBadge(task)}
+      </td>
       <td>
         <div class="flex items-center justify-end gap-1">
           <button class="task-list-action-btn task-action" data-action="edit" data-task-id="${task.id}" title="Sửa">
@@ -190,6 +196,31 @@ function renderTaskRow(task, index) {
       </td>
     </tr>
   `;
+}
+
+function renderDeadlineBadge(task) {
+  if (!task.deadline) return '<span class="text-[11px] text-slate-300 dark:text-slate-600">—</span>';
+  const status = getDeadlineStatus(task.deadline);
+  const isDone = normalizeStatus(task.status) === STATUS.DONE;
+  const text = formatDeadlineRelative(task.deadline);
+  
+  if (isDone) {
+    return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold text-emerald-500 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 line-through opacity-50">
+      <span class="material-symbols-outlined text-[11px]">event_available</span>${text}
+    </span>`;
+  }
+  
+  const styles = {
+    overdue: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20',
+    today:   'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20',
+    soon:    'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20',
+    normal:  'text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/30',
+  };
+  const icons = { overdue: 'warning', today: 'alarm', soon: 'schedule', normal: 'event' };
+  
+  return `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold ${styles[status] || styles.normal}">
+    <span class="material-symbols-outlined text-[11px]" style="font-variation-settings:'FILL' 1;">${icons[status] || 'event'}</span>${text}
+  </span>`;
 }
 
 function getSortIcon(key) {
@@ -220,6 +251,10 @@ function sortTasks(tasks, key, dir) {
       case 'created_at':
         va = new Date(a.created_at || 0).getTime();
         vb = new Date(b.created_at || 0).getTime();
+        break;
+      case 'deadline':
+        va = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+        vb = b.deadline ? new Date(b.deadline).getTime() : Infinity;
         break;
       default:
         return 0;

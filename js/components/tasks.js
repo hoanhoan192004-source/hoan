@@ -3,7 +3,7 @@
  * Glassmorphism cards with gradient accents & micro-animations
  */
 
-import { getPriorityStyle, getPriorityText, formatDate, escapeHTML, normalizeStatus, sortTasksByPriority } from '../helpers/utils.js';
+import { getPriorityStyle, getPriorityText, formatDate, escapeHTML, normalizeStatus, sortTasksByPriority, getDeadlineStatus, formatDeadlineRelative } from '../helpers/utils.js';
 import { STATUS } from '../config.js';
 
 // ─── Priority colors (light / dark safe) ──────────
@@ -83,6 +83,38 @@ export function createTaskCard(task) {
       <span class="material-symbols-outlined text-[11px] animate-spin-slow" style="font-variation-settings:'FILL' 1;">sync</span>Đang xử lý
     </span>
   ` : '';
+  // Deadline badge
+  const dlStatus = getDeadlineStatus(task.deadline);
+  const isDone2 = isDone; // alias for deadline logic
+  let deadlineBadge = '';
+  if (task.deadline && !isDone2) {
+    const dlText = formatDeadlineRelative(task.deadline);
+    const dlStyles = {
+      overdue: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 ring-1 ring-red-200 dark:ring-red-800/50',
+      today:   'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 ring-1 ring-orange-200 dark:ring-orange-800/50',
+      soon:    'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20',
+      normal:  'text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/30',
+    };
+    const dlIcons = {
+      overdue: 'warning',
+      today: 'alarm',
+      soon: 'schedule',
+      normal: 'event',
+    };
+    const dlClass = dlStyles[dlStatus] || dlStyles.normal;
+    const dlIcon = dlIcons[dlStatus] || 'event';
+    deadlineBadge = `
+      <span class="inline-flex items-center gap-1 text-[10px] ${dlClass} px-2 py-0.5 rounded-lg font-semibold ${dlStatus === 'overdue' ? 'animate-pulse' : ''}">
+        <span class="material-symbols-outlined text-[11px]" style="font-variation-settings:'FILL' 1;">${dlIcon}</span>${dlText}
+      </span>
+    `;
+  } else if (task.deadline && isDone2) {
+    deadlineBadge = `
+      <span class="inline-flex items-center gap-1 text-[10px] text-emerald-500 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-0.5 rounded-lg font-semibold line-through opacity-50">
+        <span class="material-symbols-outlined text-[11px]">event_available</span>${formatDeadlineRelative(task.deadline)}
+      </span>
+    `;
+  }
 
   return `
     <div class="group relative p-4 rounded-2xl task-card ${isDone ? 'opacity-75' : ''}" data-task-id="${task.id}" data-priority="${task.priority}" draggable="true">
@@ -147,6 +179,7 @@ export function createTaskCard(task) {
         <span class="inline-flex items-center gap-1 text-[10px] text-slate-400 bg-slate-50 dark:bg-slate-700/30 px-2 py-0.5 rounded-lg">
           <span class="material-symbols-outlined text-[11px]">calendar_today</span>${date}
         </span>
+        ${deadlineBadge}
         ${atch}
         ${doneLabel}
         ${doingLabel}

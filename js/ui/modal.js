@@ -23,6 +23,7 @@ export function closeTaskModal() {
     modal.classList.add('hidden');
     document.getElementById('task-form')?.reset();
     document.getElementById('task-edit-id').value = '';
+    document.getElementById('task-deadline').value = '';
     
     // Chuyển UI modal về chế độ "Add" (Thêm nhiệm vụ) mặc định 
     const modalTitle = document.getElementById('modal-title');
@@ -41,6 +42,12 @@ export function openEditModal(task) {
   document.getElementById('modal-title').textContent = 'Sửa nhiệm vụ';
   document.getElementById('modal-subtitle').textContent = 'Chỉnh sửa thông tin nhiệm vụ';
   document.getElementById('btn-submit-modal').textContent = 'Cập nhật';
+
+  // Set deadline
+  const deadlineInput = document.getElementById('task-deadline');
+  if (deadlineInput) {
+    deadlineInput.value = task.deadline || '';
+  }
 
   const prRadio = document.querySelector(`input[name="task-priority"][value="${task.priority}"]`);
   if (prRadio) prRadio.checked = true;

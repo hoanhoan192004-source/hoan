@@ -89,8 +89,9 @@ function setupActionListeners() {
     const description = document.getElementById('task-desc').value;
     let priorityEl = document.querySelector('input[name="task-priority"]:checked');
     const priority = priorityEl ? priorityEl.value : 'trung_binh';
+    const deadline = document.getElementById('task-deadline')?.value || null;
     
-    await submitTaskForm(title, description, priority, editId);
+    await submitTaskForm(title, description, priority, editId, deadline);
     closeTaskModal();
     refreshCurrentView();
   });

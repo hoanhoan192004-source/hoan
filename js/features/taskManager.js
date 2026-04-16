@@ -7,16 +7,16 @@ import { normalizeStatus } from '../helpers/utils.js';
 export let allTasks = [];
 
 const SAMPLE_TASKS = [
-  { id: 'sample-1', title: 'Hoàn thiện giao diện web Sneaker Store', description: '', priority: 'cao', status: 'todo', created_at: '2025-10-12T00:00:00Z', updated_at: null, progress: null, attachments: null },
-  { id: 'sample-2', title: 'Viết báo cáo bộ chỉnh lưu', description: 'Chi tiết các thông số linh kiện và biểu đồ sóng ngõ ra...', priority: 'trung_binh', status: 'todo', created_at: '2025-10-08T00:00:00Z', updated_at: null, progress: null, attachments: 2 },
-  { id: 'sample-3', title: 'Thiết kế sơ đồ nguyên lý mạch nguồn', description: '', priority: 'thap', status: 'todo', created_at: '2025-10-05T00:00:00Z', updated_at: null, progress: null, attachments: null },
-  { id: 'sample-4', title: 'Mô phỏng mạch điều khiển động cơ trên Matlab', description: '', priority: 'cao', status: 'in_progress', created_at: '2025-09-28T00:00:00Z', updated_at: null, progress: 65, attachments: null },
-  { id: 'sample-5', title: 'Lập trình giao tiếp UART cho STM32', description: '', priority: 'trung_binh', status: 'in_progress', created_at: '2025-09-20T00:00:00Z', updated_at: null, progress: 40, attachments: null },
-  { id: 'sample-6', title: 'Code ESP32 hệ thống rèm thông minh', description: '', priority: 'thap', status: 'done', created_at: '2025-09-15T00:00:00Z', updated_at: new Date(Date.now() - 2 * 86400000).toISOString(), progress: null, attachments: null },
-  { id: 'sample-7', title: 'Xem lại kết quả tài liệu hệ thống thông minh', description: '', priority: 'trung_binh', status: 'done', created_at: '2025-09-10T00:00:00Z', updated_at: new Date(Date.now() - 5 * 86400000).toISOString(), progress: null, attachments: null },
-  { id: 'sample-8', title: 'Hoàn thành bài tập lớn vi xử lý', description: '', priority: 'cao', status: 'done', created_at: '2025-09-05T00:00:00Z', updated_at: new Date(Date.now() - 7 * 86400000).toISOString(), progress: null, attachments: null },
-  { id: 'sample-9', title: 'Nộp báo cáo thực tập', description: '', priority: 'cao', status: 'done', created_at: '2025-08-28T00:00:00Z', updated_at: new Date(Date.now() - 10 * 86400000).toISOString(), progress: null, attachments: 1 },
-  { id: 'sample-10', title: 'Kiểm tra mạch PCB phiên bản 2', description: '', priority: 'thap', status: 'done', created_at: '2025-08-20T00:00:00Z', updated_at: new Date(Date.now() - 14 * 86400000).toISOString(), progress: null, attachments: null }
+  { id: 'sample-1', title: 'Hoàn thiện giao diện web Sneaker Store', description: '', priority: 'cao', status: 'todo', created_at: '2025-10-12T00:00:00Z', updated_at: null, progress: null, attachments: null, deadline: new Date(Date.now() + 1 * 86400000).toISOString().split('T')[0] },
+  { id: 'sample-2', title: 'Viết báo cáo bộ chỉnh lưu', description: 'Chi tiết các thông số linh kiện và biểu đồ sóng ngõ ra...', priority: 'trung_binh', status: 'todo', created_at: '2025-10-08T00:00:00Z', updated_at: null, progress: null, attachments: 2, deadline: new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0] },
+  { id: 'sample-3', title: 'Thiết kế sơ đồ nguyên lý mạch nguồn', description: '', priority: 'thap', status: 'todo', created_at: '2025-10-05T00:00:00Z', updated_at: null, progress: null, attachments: null, deadline: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0] },
+  { id: 'sample-4', title: 'Mô phỏng mạch điều khiển động cơ trên Matlab', description: '', priority: 'cao', status: 'in_progress', created_at: '2025-09-28T00:00:00Z', updated_at: null, progress: 65, attachments: null, deadline: new Date(Date.now()).toISOString().split('T')[0] },
+  { id: 'sample-5', title: 'Lập trình giao tiếp UART cho STM32', description: '', priority: 'trung_binh', status: 'in_progress', created_at: '2025-09-20T00:00:00Z', updated_at: null, progress: 40, attachments: null, deadline: new Date(Date.now() + 2 * 86400000).toISOString().split('T')[0] },
+  { id: 'sample-6', title: 'Code ESP32 hệ thống rèm thông minh', description: '', priority: 'thap', status: 'done', created_at: '2025-09-15T00:00:00Z', updated_at: new Date(Date.now() - 2 * 86400000).toISOString(), progress: null, attachments: null, deadline: null },
+  { id: 'sample-7', title: 'Xem lại kết quả tài liệu hệ thống thông minh', description: '', priority: 'trung_binh', status: 'done', created_at: '2025-09-10T00:00:00Z', updated_at: new Date(Date.now() - 5 * 86400000).toISOString(), progress: null, attachments: null, deadline: new Date(Date.now() - 3 * 86400000).toISOString().split('T')[0] },
+  { id: 'sample-8', title: 'Hoàn thành bài tập lớn vi xử lý', description: '', priority: 'cao', status: 'done', created_at: '2025-09-05T00:00:00Z', updated_at: new Date(Date.now() - 7 * 86400000).toISOString(), progress: null, attachments: null, deadline: null },
+  { id: 'sample-9', title: 'Nộp báo cáo thực tập', description: '', priority: 'cao', status: 'done', created_at: '2025-08-28T00:00:00Z', updated_at: new Date(Date.now() - 10 * 86400000).toISOString(), progress: null, attachments: 1, deadline: null },
+  { id: 'sample-10', title: 'Kiểm tra mạch PCB phiên bản 2', description: '', priority: 'thap', status: 'done', created_at: '2025-08-20T00:00:00Z', updated_at: new Date(Date.now() - 14 * 86400000).toISOString(), progress: null, attachments: null, deadline: null }
 ];
 
 export function isSampleTask(task) {
@@ -67,16 +67,17 @@ export function resetTasks() {
   allTasks = [];
 }
 
-export async function submitTaskForm(title, description, priority, editId) {
+export async function submitTaskForm(title, description, priority, editId, deadline) {
   if (editId) {
-    await handleEditTask(editId, { title, description, priority });
+    await handleEditTask(editId, { title, description, priority, deadline });
   } else {
     try {
       const taskData = { 
         title, 
         description, 
         priority, 
-        status: STATUS.TODO 
+        status: STATUS.TODO,
+        deadline: deadline || null
       };
       const newTask = await createTask(taskData);
       if (newTask) {
@@ -100,15 +101,20 @@ export async function handleEditTask(taskId, updates) {
     task.title = updates.title;
     task.description = updates.description;
     task.priority = updates.priority;
+    task.deadline = updates.deadline !== undefined ? (updates.deadline || null) : task.deadline;
     task.updated_at = new Date().toISOString();
     applyFilters();
 
     if (!isSampleTask(task)) {
-      await updateTask(task.id, {
+      const dbUpdates = {
         title: updates.title,
         description: updates.description,
         priority: updates.priority
-      });
+      };
+      if (updates.deadline !== undefined) {
+        dbUpdates.deadline = updates.deadline || null;
+      }
+      await updateTask(task.id, dbUpdates);
     }
     showToast('Đã cập nhật nhiệm vụ', 'success');
   } catch (err) {
