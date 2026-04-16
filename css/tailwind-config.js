@@ -1,5 +1,15 @@
 tailwind.config = {
   darkMode: 'class',
+  safelist: [
+    'hidden', 'md:flex', 'sm:inline-flex', 'grid', 'grid-cols-1', 'md:grid-cols-4', 'lg:grid-cols-5',
+    'md:col-span-2', 'lg:col-span-2', 'gap-1', 'gap-2.5', 'gap-10', 'mb-12', 'mt-20', 'pt-16', 'pb-8',
+    'text-[9px]', 'text-[10px]', 'text-[14px]', 'text-[18px]', 'text-[20px]',
+    'px-5', 'py-2.5', 'px-3', 'py-1.5', 'bg-emerald-50', 'dark:bg-emerald-500/10',
+    'text-emerald-600', 'dark:text-emerald-400', 'animate-pulse',
+    'bg-gradient-to-r', 'from-brand-600', 'via-violet-500', 'to-cyan-500',
+    'backdrop-blur-sm', 'backdrop-blur-2xl', 'open', 'scrolled', 'active',
+    'md:hidden', 'sm:h-18', 'max-w-7xl', 'mx-auto', 'px-4', 'sm:px-6', 'lg:px-8', 'flex', 'flex-col', 'md:flex-row', 'items-center', 'justify-between', 'border-t', 'border-slate-200/50', 'dark:border-white/10'
+  ],
   theme: {
     extend: {
       colors: {

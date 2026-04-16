@@ -1,0 +1,60 @@
+/* ═══════════════════════════════════════════════════
+   FOOTER STYLES – Kanban Task Manager
+   Premium typography and hover effects
+═══════════════════════════════════════════════════ */
+
+/* ─── Footer Layout & Background Base ──────────── */
+footer {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* ─── Footer Links ─────────────────────────────── */
+.footer-link {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #64748b;
+  transition: all 0.25s ease;
+  position: relative;
+  display: inline-block;
+}
+
+.footer-link:hover {
+  color: #6366f1;
+  transform: translateX(4px);
+}
+
+.dark .footer-link {
+  color: #94a3b8;
+}
+
+.dark .footer-link:hover {
+  color: #a5b4fc;
+}
+
+/* Link underline hover effect */
+.footer-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 0.3s ease;
+}
+
+.footer-link:hover::after {
+  width: 100%;
+}
+
+/* ─── System Status Pulse ──────────────────────── */
+@keyframes pulse-emerald {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.bg-emerald-500.animate-pulse {
+  animation: pulse-emerald 2s infinite;
+}
