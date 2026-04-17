@@ -18,6 +18,23 @@ export async function signInWithGitHub() {
   return data;
 }
 
+export async function signInWithGoogle() {
+  const redirectTo = new URL('../index.html', window.location.href).href;
+
+  const { data, error } = await getSupabase().auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: redirectTo,
+      queryParams: {
+        access_type: 'offline',
+        prompt: 'consent',
+      },
+    }
+  });
+  if (error) throw error;
+  return data;
+}
+
 // ─── Email / Password ─────────────────────────────
 export async function signUpWithEmail(email, password) {
   const { data, error } = await getSupabase().auth.signUp({ email, password });
